@@ -108,3 +108,13 @@ test('ticket search handles formatted IDs, unordered words, contacts and combine
  assert.equal((await list({q:'wireless nonexistent'})).total,0);
  }finally{db.close()}
 });
+
+test('new service boards accept tickets with their own initial status and board filter',async()=>{
+ const {db,a,oa,ca,ba}=await setup();try{
+ const board=await a.directory(oa,'boards',{name:'Escalations',description:'Specialist queue',statuses:[{name:'Queued',closed:false},{name:'Done',closed:true}]});
+ const ticket=await a.createTicket(oa,{title:'Specialist request',companyId:ca,boardId:board.id});
+ assert.equal(ticket.boardId,board.id);assert.equal(ticket.status,'Queued');
+ assert.deepEqual((await a.listTickets(oa,new URL('https://test/?view=all&board='+board.id))).tickets.map(t=>t.id),[ticket.id]);
+ assert.equal((await a.listTickets(oa,new URL('https://test/?view=all&board='+ba))).total,0);
+ }finally{db.close()}
+});
