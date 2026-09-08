@@ -154,3 +154,24 @@ button:focus-visible{outline-color:var(--ring)}.topbar{border-top:3px solid var(
 :is(.nav-item,[data-slot="sidebar-menu-button"],[data-slot="button"],[data-slot="tabs-trigger"],[data-slot="select-trigger"]):not(.qv-site *):not([data-variant="destructive"]):not(:disabled):not([aria-disabled="true"]):hover{background:#ededed;color:#111;border-radius:8px;text-shadow:none}
 :is(.ticket-number,.subject,.text-action,.board-name button,.portal-footer a):not(:disabled):not([aria-disabled="true"]){border-radius:8px;transition:background-color .15s,box-shadow .15s}
 :is(.ticket-number,.subject,.text-action,.portal-footer a):not(:disabled):not([aria-disabled="true"]):hover{background:#ededed;box-shadow:0 0 0 4px #ededed;color:#111;text-decoration:none;text-shadow:none}
+
+/* Sidebar navigation: a full-row gray bubble, including service boards. */
+button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.workspace-nav-bubble {
+  border-radius: 10px;
+  transition: background-color .15s ease, color .15s ease;
+}
+button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.workspace-nav-bubble:not(:disabled):not([aria-disabled="true"]):is(:hover, :focus-visible) {
+  background-color: #dedede;
+  color: #111;
+  border-radius: 10px;
+  text-shadow: none;
+}
+button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.workspace-nav-bubble[data-active="true"] {
+  background-color: #e8e8e8;
+  color: #111;
+  border-radius: 10px;
+  box-shadow: inset 3px 0 #555;
+}
+button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.workspace-nav-bubble[data-active="true"]:is(:hover, :focus-visible) {
+  background-color: #d6d6d6;
+}
