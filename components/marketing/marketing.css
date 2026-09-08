@@ -9,3 +9,5 @@
 .qv-brand{background:#fff;width:160px;height:38px;border-radius:5px}.qv-brand>span{position:absolute;width:138%;height:auto;left:50%;top:50%;transform:translate(-50%,-50%)}.qv-brand img{width:100%!important;height:auto!important;max-width:none!important}@media(max-width:540px){.qv-brand{width:138px;height:33px}.qv-brand>span{width:138%;height:auto;left:50%;top:50%}.qv-brand img{width:100%!important;height:auto!important}}
 
 .qv-brand img{filter:brightness(0)}
+
+.qv-page-intro{max-width:1160px;margin:auto;padding:64px 32px 10px}.qv-page-intro h1{font-size:clamp(36px,5vw,62px);line-height:1.12;font-weight:400;letter-spacing:-1.8px;margin:16px 0 32px}.qv-nav a[aria-current=page]{text-decoration:underline;text-underline-offset:7px}
