@@ -118,3 +118,18 @@ test('new service boards accept tickets with their own initial status and board 
  assert.equal((await a.listTickets(oa,new URL('https://test/?view=all&board='+ba))).total,0);
  }finally{db.close()}
 });
+
+test('exact status filters include custom and closed states while respecting board scope',async()=>{
+ const {db,a,oa,ca,ba}=await setup();try{
+ const board=await a.directory(oa,'boards',{name:'Approval',statuses:[{name:'Awaiting approval',closed:false},{name:'Finished',closed:true}]});
+ const t=await a.createTicket(oa,{title:'Approval request',companyId:ca,boardId:board.id});
+ const list=(status,boardId=board.id)=>a.listTickets(oa,new URL('https://test/?'+new URLSearchParams({view:'all',status,board:boardId})));
+ assert.equal((await list('Awaiting approval')).total,1);
+ assert.equal((await list('Awaiting')).total,0);
+ assert.equal((await list('Awaiting approval',ba)).total,0);
+ await a.updateTicket(oa,String(t.id),{status:'Finished',version:1});
+ assert.equal((await list('Finished')).total,1);
+ assert.equal((await list('Awaiting approval')).total,0);
+ assert.equal((await list("' OR 1=1 --")).total,0);
+ }finally{db.close()}
+});
