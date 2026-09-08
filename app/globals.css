@@ -151,7 +151,7 @@ button:focus-visible{outline-color:var(--ring)}.topbar{border-top:3px solid var(
 .quevian-logo img{filter:brightness(0)}
 
 /* Gray rounded hover surfaces throughout the service workspace. */
-:is(.nav-item,[data-slot="sidebar-menu-button"],[data-slot="button"],[data-slot="tabs-trigger"],[data-slot="select-trigger"]):not(.qv-site *):not([data-variant="destructive"]):not(:disabled):not([aria-disabled="true"]):hover{background:#ededed;color:#111;border-radius:8px;text-shadow:none}
+:is(.nav-item,[data-slot="sidebar-menu-button"],[data-slot="button"],[data-slot="tabs-trigger"],[data-slot="select-trigger"]):not(.qv-site *):not([data-variant="destructive"]):not([data-variant="default"]):not(:disabled):not([aria-disabled="true"]):hover{background:#ededed;color:#111;border-radius:8px;text-shadow:none}
 :is(.ticket-number,.subject,.text-action,.board-name button,.portal-footer a):not(:disabled):not([aria-disabled="true"]){border-radius:8px;transition:background-color .15s,box-shadow .15s}
 :is(.ticket-number,.subject,.text-action,.portal-footer a):not(:disabled):not([aria-disabled="true"]):hover{background:#ededed;box-shadow:0 0 0 4px #ededed;color:#111;text-decoration:none;text-shadow:none}
 
@@ -174,4 +174,22 @@ button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.wor
 }
 button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.workspace-nav-bubble[data-active="true"]:is(:hover, :focus-visible) {
   background-color: #d6d6d6;
+}
+
+/* Primary actions match the black-and-white public website. */
+[data-slot="button"][data-variant="default"] {
+  --primary: #111;
+  --primary-foreground: #fff;
+  --ring: #737373;
+  background: #111;
+  border-color: #111;
+  color: #fff;
+}
+[data-slot="button"][data-variant="default"]:not(:disabled):not([aria-disabled="true"]):hover {
+  background: #303030;
+  border-color: #303030;
+  color: #fff;
+}
+[data-slot="button"][data-variant="default"]:focus-visible {
+  outline-color: #737373;
 }
