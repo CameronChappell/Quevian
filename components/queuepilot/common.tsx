@@ -1,0 +1,17 @@
+'use client';
+import {Select,SelectTrigger,SelectValue,SelectContent,SelectItem} from '@/components/ui/select';
+import {UserRound,Loader2,Inbox} from 'lucide-react';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {Textarea} from '@/components/ui/textarea';
+export class ApiError extends Error {status:number;constructor(message:string,status:number){super(message);this.status=status;}}
+export async function api<T>(url:string,method='GET',data?:unknown,signal?:AbortSignal):Promise<T>{const r=await fetch(url,{method,signal,cache:'no-store',headers:method==='GET'?{}:{'Content-Type':'application/json','X-Quevian-Request':'1'},body:data===undefined?undefined:JSON.stringify(data)});let value;try{value=await r.json()}catch{throw new ApiError('The server returned an unexpected response. Please refresh.',r.status)}if(!r.ok)throw new ApiError(value&&typeof value==='object'&&'error' in value&&typeof value.error==='string'?value.error:'Unable to complete the request.',r.status);return value as T;}
+export const message=(e:unknown)=>e instanceof Error?e.message:'Something went wrong. Please try again.';
+export function Picker({value,options,onChange,label,disabled=false}:{value:string;options:(string|{value:string;label:string})[];onChange:(v:string)=>void;label:string;disabled?:boolean}){return <Select value={value} onValueChange={onChange} disabled={disabled}><SelectTrigger aria-label={label}><SelectValue placeholder={'Select '+label.toLowerCase()}/></SelectTrigger><SelectContent>{options.map(o=>typeof o==='string'?{value:o,label:o}:o).map(o=><SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent></Select>}
+export function Avatar({name}:{name:string}){return <span className="avatar">{name==='Unassigned'?<UserRound size={13}/>:name.split(/\s+/).slice(0,2).map(n=>n[0]).join('').toUpperCase()}</span>}
+export function Badge({value}:{value:string}){return <span className={'status status-'+value.toLowerCase().replaceAll(' ','-')}><span/>{value}</span>}
+export function Loading({label='Loading workspace…'}:{label?:string}){return <div className="loading-state" role="status"><Loader2 className="animate-spin" size={20}/>{label}</div>}
+export function ErrorState({error,retry}:{error:string;retry:()=>void}){return <div className="error-state" role="alert"><h3>Unable to load this view</h3><p>{error}</p><Button variant="outline" onClick={retry}>Try again</Button>{error.includes('Sign in')&&<a href="/login" target="_top">Sign in</a>}</div>}
+export function Empty({title,description,children}:{title:string;description:string;children?:React.ReactNode}){return <div className="empty"><Inbox/><h3>{title}</h3><p>{description}</p>{children}</div>}
+export function Field({label,name,value,onChange,required=false,multiline=false,type='text',maxLength=200}:{label:string;name:string;value:string;onChange:(v:string)=>void;required?:boolean;multiline?:boolean;type?:string;maxLength?:number}){const Component=multiline?Textarea:Input;return <div className="form-field"><label htmlFor={name}>{label}</label><Component id={name} name={name} value={value} required={required} type={type} step={type==='number'?'any':undefined} maxLength={maxLength} onChange={e=>onChange(e.target.value)}/></div>}
+export const stamp=(s:string)=>new Date(s).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
