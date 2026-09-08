@@ -12,5 +12,8 @@
 
 .qv-page-intro{max-width:1160px;margin:auto;padding:64px 32px 10px}.qv-page-intro h1{font-size:clamp(36px,5vw,62px);line-height:1.12;font-weight:400;letter-spacing:-1.8px;margin:16px 0 32px}.qv-nav a[aria-current=page]{text-decoration:underline;text-underline-offset:7px}
 
-/* Subtle gray text outline on public-page navigation and actions. */
-.qv-nav a:hover,.qv-login-link:hover,.qv-footer nav a:hover,.qv-site .qv-button:hover,.qv-site .qv-text-link:hover{ text-shadow:-.4px 0 #9ca3af,.4px 0 #9ca3af,0 -.4px #9ca3af,0 .4px #9ca3af }
+/* Rounded gray hover backgrounds for navigation and actions. */
+.qv-nav a,.qv-login-link,.qv-footer nav a,.qv-site .qv-text-link{border-radius:8px;transition:background-color .15s,box-shadow .15s}
+.qv-nav a:hover,.qv-login-link:hover,.qv-footer nav a:hover,.qv-site .qv-text-link:hover{background:#ededed;box-shadow:0 0 0 7px #ededed;color:var(--qv-ink);text-shadow:none}
+.qv-site .qv-button:hover{background:#e5e5e5;border-color:#e5e5e5;color:#111;border-radius:8px;transform:none;text-shadow:none}
+.qv-site .qv-button.secondary:hover{background:#ededed;border-color:#ededed;color:#111}
