@@ -31,3 +31,19 @@ test('current and legacy request headers pass while cross-site and unmarked requ
  assert.throws(()=>mutationGuard(req({Origin:'https://quevian.test'})),e=>e.status===403);
  assert.throws(()=>mutationGuard(req({'X-Quevian-Request':'0'})),e=>e.status===403);
 });
+
+test('new verified signup proceeds through login, organization setup, a board, a ticket and accepted staff invitation',async()=>{
+ const db=setup();try{
+ const signup=await post('signup',{email:verified.email,password:'a-unique-long-password',name:'New owner'});assert.equal(signup.status,200);
+ assert.equal(await auth.verifiedUser(),null);
+ assert.equal((await post('confirm',{token_hash:'valid-confirmation-token-hash',type:'signup',next:'/app'})).status,200);
+ state.user=verified;assert.equal((await post('login',{email:verified.email,password:'a-unique-long-password'})).status,200);
+ const owner=new Service(db,await auth.accountIdentity()),org=(await owner.createOrganization({name:'Signup journey'})).id;
+ const company=(await owner.directory(org,'companies',{name:'First customer'})).id;
+ const board=(await owner.directory(org,'boards',{name:'New board',statuses:[{name:'Queued',closed:false},{name:'Done',closed:true}]})).id;
+ const ticket=await owner.createTicket(org,{title:'First real workflow',companyId:company,boardId:board});assert.equal(ticket.status,'Queued');
+ const i=await owner.invite(org,{email:'staff@example.com',role:'Engineer'});
+ const staff=new Service(db,{id:'supabase:staff',email:'staff@example.com',name:'Staff'});await staff.account();await assert.rejects(staff.ticket(org,ticket.id),e=>e.status===403);
+ await staff.acceptInvitation({invitationId:i.id});assert.equal((await staff.ticket(org,ticket.id)).title,'First real workflow');
+ }finally{db.sql.close()}
+});
