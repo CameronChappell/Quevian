@@ -5,8 +5,8 @@ export const metadata: Metadata = {
   title: "Quevian — Service workspace",
   description: "Quevian IT service management.",
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
+    icon: "/favicon.svg?v=stacked-20260908",
+    shortcut: "/favicon.svg?v=stacked-20260908",
   },
 };
 

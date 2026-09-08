@@ -16,7 +16,7 @@ export default defineConfig({
         return code.replace(/href="(\/(?:login|signup)[^"]*)"/g,(_match,path)=>`href="${appOrigin}${path}"`);
       }
       if(id.endsWith('/components/marketing/brand.tsx')){
-        return code.replace('href="/"',`href="${base}"`).replace('src="/quevian-logo.png"',`src="${base}quevian-logo.png"`);
+        return code.replace('href="/"',`href="${base}"`).replace('src="/quevian-logo.png',`src="${base}quevian-logo.png`);
       }
       if(id.endsWith('.css'))return code.replaceAll('url(/fonts/',`url(${base}fonts/`);
     }
