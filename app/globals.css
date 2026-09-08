@@ -134,3 +134,8 @@ body{font-family:Inter,Arial,Helvetica,sans-serif;font-size:14px}button{cursor:p
 .status-in-progress{background:#eaf1ff;color:#225ab7}.status-waiting-on-customer,.status-waiting-on-vendor{background:#fff0e5;color:#984913}.status-resolved{background:#e0f5f0;color:#096d62}.status-escalated{background:#f0e9ff;color:#713ab8}.dark .status-in-progress{background:#253c60;color:#c4daff}.dark .status-resolved{background:#173f3a;color:#88e0ce}.dark .status-waiting-on-customer,.dark .status-waiting-on-vendor{background:#493322;color:#ffd1a8}.dark .status-escalated{background:#382c50;color:#d5baff}
 button:focus-visible{outline-color:var(--ring)}.topbar{border-top:3px solid var(--brand-blue)}
 @media(max-width:600px){.portal-header{padding:16px;gap:10px}.portal-header .quevian-logo{width:155px}.portal-header>span{font-size:12px}.content{padding:20px 16px}}
+
+/* Dark surfaces: remove the raster logo's white panel and reveal a light wordmark. */
+.dark .quevian-logo{background:transparent;border-radius:0;isolation:isolate}
+.dark .quevian-logo img{filter:invert(1) hue-rotate(180deg);mix-blend-mode:screen}
+.dark .welcome-brand{background:var(--card)}
