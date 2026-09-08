@@ -149,3 +149,8 @@ button:focus-visible{outline-color:var(--ring)}.topbar{border-top:3px solid var(
 .brand .quevian-logo img,.welcome-brand .quevian-logo img,.portal-header .quevian-logo img{width:138%;height:auto;left:50%;top:50%;transform:translate(-50%,-50%)}
 
 .quevian-logo img{filter:brightness(0)}
+
+/* Gray rounded hover surfaces throughout the service workspace. */
+:is(.nav-item,[data-slot="sidebar-menu-button"],[data-slot="button"],[data-slot="tabs-trigger"],[data-slot="select-trigger"]):not(.qv-site *):not([data-variant="destructive"]):not(:disabled):not([aria-disabled="true"]):hover{background:#ededed;color:#111;border-radius:8px;text-shadow:none}
+:is(.ticket-number,.subject,.text-action,.board-name button,.portal-footer a):not(:disabled):not([aria-disabled="true"]){border-radius:8px;transition:background-color .15s,box-shadow .15s}
+:is(.ticket-number,.subject,.text-action,.portal-footer a):not(:disabled):not([aria-disabled="true"]):hover{background:#ededed;box-shadow:0 0 0 4px #ededed;color:#111;text-decoration:none;text-shadow:none}
