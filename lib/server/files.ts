@@ -1,7 +1,7 @@
 import {env} from 'cloudflare:workers';
 import {Operations} from './operations';
 import {HttpError} from './service';
-export function mutationGuard(request:Request){if(request.headers.get('x-queuepilot-request')!=='1')throw new HttpError(403,'Refresh the page and try again.');if(request.headers.get('sec-fetch-site')==='cross-site')throw new HttpError(403,'Cross-site requests are not allowed.');const origin=request.headers.get('origin');if(origin&&origin!==new URL(request.url).origin)throw new HttpError(403,'Cross-site requests are not allowed.');}
+export function mutationGuard(request:Request){if(request.headers.get('x-quevian-request')!=='1'&&request.headers.get('x-queuepilot-request')!=='1')throw new HttpError(403,'Refresh the page and try again.');if(request.headers.get('sec-fetch-site')==='cross-site')throw new HttpError(403,'Cross-site requests are not allowed.');const origin=request.headers.get('origin');if(origin&&origin!==new URL(request.url).origin)throw new HttpError(403,'Cross-site requests are not allowed.');}
 async function access(s:Operations,org:string,ticketId:number,company?:string,write=false){if(company)await s.portalTicket(org,company,ticketId);else{await s.context(org,write?'tickets:write':undefined);await s.ticket(org,ticketId);}}
 export async function fileRequest(s:Operations,request:Request,org:string,ticketId:number,fileId?:string,company?:string){await access(s,org,ticketId,company,request.method==='POST');if(request.method==='GET'){
  if(!fileId)return {files:await s.rows('SELECT id,name,size,at,visibility FROM attachments WHERE org_id=? AND ticket_id=?'+(company?" AND visibility='Customer'":'')+' ORDER BY at',org,ticketId)};
