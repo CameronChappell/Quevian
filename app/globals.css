@@ -177,7 +177,7 @@ button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.wor
 }
 
 /* Primary actions match the black-and-white public website. */
-[data-slot="button"][data-variant="default"] {
+:is([data-slot="button"][data-variant="default"], .quick-create-button) {
   --primary: #111;
   --primary-foreground: #fff;
   --ring: #737373;
@@ -185,11 +185,11 @@ button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.wor
   border-color: #111;
   color: #fff;
 }
-[data-slot="button"][data-variant="default"]:not(:disabled):not([aria-disabled="true"]):hover {
+:is([data-slot="button"][data-variant="default"], .quick-create-button):not(:disabled):not([aria-disabled="true"]):hover {
   background: #303030;
   border-color: #303030;
   color: #fff;
 }
-[data-slot="button"][data-variant="default"]:focus-visible {
+:is([data-slot="button"][data-variant="default"], .quick-create-button):focus-visible {
   outline-color: #737373;
 }
