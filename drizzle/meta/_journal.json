@@ -57,6 +57,13 @@
       "when": 1788850031132,
       "tag": "0007_purple_shiva",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1788919546358,
+      "tag": "0008_hesitant_tenebrous",
+      "breakpoints": true
     }
   ]
 }
