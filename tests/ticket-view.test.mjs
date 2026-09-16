@@ -1,0 +1,9 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {build} from 'esbuild';
+const compiled=await build({entryPoints:['lib/ticket-view.ts'],bundle:true,format:'esm',platform:'node',write:false});
+const {normalizeView,canMoveTicket}=await import('data:text/javascript;base64,'+Buffer.from(compiled.outputFiles[0].text).toString('base64'));
+const workspace={companies:[{id:'customer'}],boards:[{id:'help',statuses:[{name:'New',closed:false},{name:'Waiting',closed:false},{name:'Done',closed:true}]},{id:'network',statuses:[{name:'Queued',closed:false},{name:'Reviewed',closed:true}]}]};
+test('changing layout preserves status, board, company, and all other filters',()=>{const view={query:'printer',status:'Waiting',priority:'High',sort:'priority',view:'all',board:'help',company:'customer',layout:'table'};assert.deepEqual(normalizeView({...view,layout:'kanban'},workspace),{...view,layout:'kanban'})});
+test('legacy saved views and removed record references normalize safely',()=>{assert.deepEqual(normalizeView({board:'removed',company:'removed',priority:'invalid',view:'invalid',status:'removed'},workspace),{query:'',status:'',board:'all',company:'all',priority:'all',sort:'newest',view:'all',layout:'table'});assert.equal(normalizeView({board:'network',status:'Waiting'},workspace).status,'')});
+test('Kanban transitions require an unmerged ticket and a status on its own board',()=>{const ticket={boardId:'help',status:'New',mergedInto:null};assert.equal(canMoveTicket(ticket,'Waiting',workspace.boards),true);assert.equal(canMoveTicket(ticket,'Done',workspace.boards),true);assert.equal(canMoveTicket(ticket,'New',workspace.boards),false);assert.equal(canMoveTicket(ticket,'Reviewed',workspace.boards),false);assert.equal(canMoveTicket({...ticket,mergedInto:1002},'Waiting',workspace.boards),false)});

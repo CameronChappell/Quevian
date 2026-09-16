@@ -18,7 +18,7 @@ export function parseCSV(text:string){
 const metadataInput=z.object({type:z.string().max(80).default(''),subtype:z.string().max(80).default(''),tags:z.string().max(500).default(''),due:z.union([z.literal(''),z.string().datetime()]).default(''),estimatedHours:z.number().min(0).max(100000).default(0),agreement:z.string().max(200).default(''),resources:z.array(id).max(30).default([]),customFields:z.record(z.string().max(80),z.string().max(2000)).refine(x=>Object.keys(x).length<=30).default({}),version:version.default(0)}).strict();
 const configBase={name,version:version.optional()};
 const configSchemas={
- 'saved-view':z.object({...configBase,query:z.string().max(200),priority:z.string().max(30),sort:z.string().max(30),view:z.enum(['all','open','mine','unassigned','critical','waiting']),board:z.string().max(150),company:z.string().max(150),layout:z.enum(['table','compact','kanban'])}).strict(),
+ 'saved-view':z.object({...configBase,query:z.string().max(200),status:z.string().max(60).default(''),priority:z.string().max(30),sort:z.string().max(30),view:z.enum(['all','open','mine','unassigned','critical','waiting']),board:z.string().max(150),company:z.string().max(150),layout:z.enum(['table','compact','kanban'])}).strict(),
  recurring:z.object({...configBase,title:z.string().trim().min(1).max(180),description:z.string().max(10000).default(''),companyId:id,boardId:id,assigneeId:id.nullable().default(null),priority:z.enum(priorities),intervalDays:z.number().int().min(1).max(366),nextDue:z.string().datetime(),enabled:z.boolean()}).strict(),
  'project-template':z.object({...configBase,tasks:z.string().min(1).max(10000)}).strict(),
  'reply-template':z.object({...configBase,body:z.string().min(1).max(10000)}).strict(),

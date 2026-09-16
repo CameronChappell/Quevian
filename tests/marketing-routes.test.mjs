@@ -1,12 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {build} from 'esbuild';
-globalThis.__qvRenderedEnv={};
-const built=await build({entryPoints:['dist/server/index.js'],bundle:true,format:'esm',platform:'node',write:false,plugins:[{name:'runtime-binding',setup(b){b.onResolve({filter:/^cloudflare:workers$/},a=>({path:a.path,namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export const env=globalThis.__qvRenderedEnv;',loader:'js'}));}}]});
-const {default:worker}=await import('data:text/javascript;base64,'+Buffer.from(built.outputFiles[0].text).toString('base64'));
-const env={ASSETS:{fetch:async()=>new Response('Not found',{status:404})}};
-const ctx={waitUntil(){},passThroughOnException(){}};
-const request=(path,headers={})=>worker.fetch(new Request('http://localhost'+path,{headers:{accept:'text/html',...headers}}),env,ctx);
+import {worker,env,ctx,request} from './support/render-worker.mjs';
 test('homepage is public and presents both entry points',async()=>{const r=await request('/');assert.equal(r.status,200);const html=await r.text();assert.match(html,/Great service/);assert.match(html,/href="\/login"/);assert.match(html,/href="\/signup"/);assert.match(html,/quevian-logo.png/)});
 test('anonymous staff, customer, and signup pages link to the correct real sign-in destination',async()=>{for(const [path,destination] of [['/login','%2Fapp'],['/signup','%2Fapp'],['/login?role=customer','%2Fportal']]){const r=await request(path);assert.equal(r.status,200);const html=await r.text();assert.ok(html.includes('/signin-with-chatgpt?return_to='+destination));assert.match(html,/target="_top"/)}});
 test('workspace and portal remain gated and workspace deep links survive sign-in',async()=>{for(const [path,dest] of [['/app','/app'],['/portal','/portal'],['/app?org=demo&ticket=1042','/app?org=demo&ticket=1042']]){const r=await request(path);assert.ok([302,303,307,308].includes(r.status));const target=new URL(r.headers.get('location'),'http://localhost');assert.equal(target.pathname,'/login');assert.equal(target.searchParams.get('next'),dest)}});

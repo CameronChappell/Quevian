@@ -18,6 +18,11 @@ if [[ ! -x "${vinext}" ]]; then
   exit 69
 fi
 
+if [[ -d "${SITES_PROJECT_ROOT}/public/__audit__" ]]; then
+  echo "Remove the temporary public/__audit__ fixture before building for publication." >&2
+  exit 1
+fi
+
 echo "Running bounded vinext build..."
 timeout \
   --signal=TERM \

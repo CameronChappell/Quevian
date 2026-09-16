@@ -32,7 +32,7 @@ Use a dedicated test company and your own external mailbox. Do not test by sendi
 - Inboxes currently route to a fixed company and board. Email alone never creates membership or grants portal access.
 - Incoming sender addresses are email identities, not authenticated portal identities. No private ticket content is returned to an incoming sender. Only staff-triggered replies are sent to the original requester.
 - Unknown, paused, automatic, or ambiguous inbox recipients are ignored. Resend retains the original email for operator inspection.
-- Existing email threads are blocked if the ticket is moved to a different company. Merged tickets reject new replies; operators must use the destination ticket.
+- Tickets with customer conversations, customer-visible files, or email threads cannot be reassigned to another company. Legacy threads whose company no longer matches remain blocked. Incoming replies to merged ticket addresses follow the same-company destination and retain the original sender check and deduplication. Staff and portal users continue work on the destination.
 
 Documentation: https://resend.com/docs/dashboard/receiving/introduction
 https://resend.com/docs/dashboard/receiving/get-email-content
