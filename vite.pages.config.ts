@@ -17,6 +17,9 @@ export default defineConfig({
       if(id.endsWith('/components/marketing/landing.tsx')){
         return code.replace(/href="\/(product|how-it-works|customer-portal|faq)\/"/g,(_match,page)=>`href="${base}${page}/"`).replace(/href="(\/(?:login|signup)[^"]*)"/g,(_match,path)=>`href="${appOrigin}${path}"`);
       }
+      if(id.endsWith('/components/marketing/product-demo-media.ts')){
+        return code.replaceAll('/media/',`${base}media/`);
+      }
       if(id.endsWith('/components/marketing/brand.tsx')){
         return code.replace('href="/"',`href="${base}"`).replace('src="/quevian-logo.png',`src="${base}quevian-logo.png`);
       }
