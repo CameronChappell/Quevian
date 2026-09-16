@@ -1,33 +1,52 @@
-// Higgsfield Higgsedit composition. Run after cropping captures to 1280x720.
+// Native Higgsfield / Higgsedit composition. Cropped source captures are 1280x720.
+// Camera and cursor tracks remain continuous across the full 20-second loop.
 export default async ({project}) => {
-  const p=await project({dir:'quevian-demo',size:'1280x720',fps:30,background:'#ffffff'});
+  const p=await project({dir:'quevian-demo',size:'1280x720',fps:60,background:'#ffffff'});
   const names=['01-queue','02-create','03-status','04-assign','05-reply','06-posted','07-updated-queue'];
   const shots=await Promise.all(names.map(n=>p.add('../frames/'+n+'.png')));
   const duration=20;
+  const smooth='ease-in-out';
+  const track=(property,points)=>({property,keyframes:points.map(([at,value])=>({at,value,easing:smooth}))});
   const nodes=[<media file={shots[0]} x={0} y={0} width={1280} height={720} fit="contain" duration={duration}/>];
-  const scenes=[{index:1,at:2.8,dur:3.2},{index:2,at:6,dur:2.5},{index:3,at:8.5,dur:2.5},{index:4,at:11,dur:3},{index:5,at:14,dur:3},{index:6,at:17,dur:2.6}];
-  for(const s of scenes){
-    const opacity=[{at:0,value:0},{at:0.12,value:1},{at:s.dur-(s.index===6?0.6:0.001),value:1},{at:s.dur,value:s.index===6?0:1}];
-    nodes.push(<media at={s.at} duration={s.dur} file={shots[s.index]} x={0} y={0} width={1280} height={720} fit="contain" animate={[{property:'opacity',keyframes:opacity}]}/>);
+
+  // Overlapping states dissolve smoothly; previous frames never pop away.
+  for(const [index,at,fade] of [[1,2.6,.42],[2,6,.4],[3,8.5,.36],[4,11,.4],[5,14,.4],[6,16.6,.5],[0,18.65,.65]]){
+    nodes.push(<media at={at} duration={duration-at} file={shots[index]} x={0} y={0} width={1280} height={720} fit="contain"
+      animate={[track('opacity',[[0,0],[fade,1],[duration-at,1]])]}/>);
   }
-  const gestures=[
-    {at:0,dur:2.8,from:[940,430],to:[1175,142]},
-    {at:2.8,dur:3.2,from:[540,180],to:[815,630]},
-    {at:6,dur:2.5,from:[820,223],to:[750,255]},
-    {at:8.5,dur:2.5,from:[810,300],to:[790,366]},
-    {at:11,dur:3,from:[900,580],to:[1180,674]},
-    {at:14,dur:3,from:[1190,640],to:[1240,24]}
+
+  // One cursor with flowing travel between actions, without per-shot resets.
+  const cursor=[
+    [0,940,430],[.7,952,418],[2.3,1176,142],[2.65,1176,142],
+    [3.45,712,280],[4.3,725,283],[5.7,816,632],[6.08,816,632],
+    [6.95,765,236],[7.7,746,255],[8.55,774,286],
+    [9.5,790,359],[10.6,790,365],[11.75,928,580],
+    [12.5,951,595],[13.72,1184,674],[14.2,1184,674],
+    [15.2,1180,576],[16.3,1240,24],[16.68,1240,24],
+    [17.7,1110,318],[19.3,940,430],[20,940,430]
   ];
-  for(const g of gestures){
-    const travel=g.dur-0.4;
-    const animate=[
-      {property:'offsetX',keyframes:[{at:0,value:g.from[0]},{at:0.45,value:g.from[0]},{at:travel,value:g.to[0],easing:'house'}]},
-      {property:'offsetY',keyframes:[{at:0,value:g.from[1]},{at:0.45,value:g.from[1]},{at:travel,value:g.to[1],easing:'house'}]}
-    ];
-    nodes.push(<path at={g.at} duration={g.dur} d="M 1 1 L 2 24 L 8 18 L 13 29 L 18 26 L 12 16 L 23 15 Z" width={24} height={30} x={0} y={0} fill="#101113" stroke={{color:'#ffffff',width:1.8}} animate={animate}/>);
-    nodes.push(<rect at={g.at+g.dur-0.3} duration={0.3} x={g.to[0]-17} y={g.to[1]-17} width={34} height={34} radius={17} fill="#6b7280" opacity={0.18} animate={[{property:'scale',from:0.6,to:1.5,duration:0.3},{property:'opacity',from:0.2,to:0,duration:0.3}]}/>);
+  nodes.push(<path x={0} y={0} width={20} height={26} duration={duration}
+    d="M 1 1 L 2 21 L 7 16 L 12 25 L 16 23 L 11 14 L 20 13 Z"
+    fill="#161719" stroke={{color:'#ffffff',width:1.5}}
+    animate={[track('offsetX',cursor.map(([t,x])=>[t,x])),track('offsetY',cursor.map(([t,,y])=>[t,y]))]}/>);
+  for(const [at,x,y] of [[2.34,1176,142],[5.72,816,632],[7.7,746,255],[10.55,790,365],[13.75,1184,674],[16.3,1240,24]]){
+    nodes.push(<rect at={at} duration={.42} x={x-13} y={y-13} width={26} height={26} radius={13} fill="#747474"
+      animate={[{property:'scale',from:.65,to:1.5,duration:.42,easing:'ease-out'},track('opacity',[[0,.16],[.42,0]])]}/>);
   }
-  p.compose(nodes,{dur:duration,name:'Quevian ticket workflow'});
-  await p.frame(1,'renders/poster.png');
-  await p.render('renders/demo-master.mp4',{depth:8,bitrate:2500000,concurrency:2,shards:4});
+
+  // Zoom around each task's focal point, keeping lower action buttons in view.
+  // Native frame scale uses its top-left origin, so offsets compensate explicitly.
+  const camera=[[0,1,640,360],[.7,1,640,360],[4.8,1.07,640,360],
+    [6.2,1.045,1000,320],[9.8,1.09,1000,330],[12.8,1.075,1000,600],
+    [15.2,1.085,1000,500],[18.5,1,640,360],[20,1,640,360]];
+  p.compose(<frame width={1280} height={720} layout="none" duration={duration}
+    animate={[
+      track('scale',camera.map(([t,s])=>[t,s])),
+      track('offsetX',camera.map(([t,s,x])=>[t,(1-s)*x])),
+      track('offsetY',camera.map(([t,s,,y])=>[t,(1-s)*y]))
+    ]}>{nodes}</frame>,{dur:duration,name:'Smooth Quevian workflow'});
+  for(const [label,at] of [['poster',0],['create',4.5],['assign',9.6],['reply',12.8],['posted',15.4],['loop',19.9]]){
+    await p.frame(at,'renders/'+label+'.png');
+  }
+  await p.render('renders/demo-master.mp4',{depth:8,bitrate:4000000,concurrency:2,shards:4});
 };
