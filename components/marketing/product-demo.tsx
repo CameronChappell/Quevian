@@ -35,7 +35,7 @@ export function ProductDemo({src,poster,fallback}:{src:string|null;poster?:strin
    Your browser cannot play this video. Explore the product on the Product page.
   </video>
   <figcaption className="qv-video-caption">
-   <span id="qv-product-demo-description">A short walkthrough of Quevian’s ticket workspace.</span>
+   <span id="qv-product-demo-description">20-second tour: create, assign, and update a ticket.</span>
    <button type="button" className="qv-video-control" onClick={async()=>{
     const element=video.current;if(!element)return;
     if(element.paused){manualPause.current=false;try{await element.play()}catch{setPlayError(true)}}
