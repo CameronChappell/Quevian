@@ -7,15 +7,16 @@ const base=process.env.PAGES_BASE_PATH || '/Quevian/';
 const appOrigin='https://queuepilot.boomacooks.chatgpt.site';
 export default defineConfig({
   root:root+'pages-preview',
+  resolve:{alias:{'@':root}},
   base,
   publicDir:root+'public',
   plugins:[{
     name:'quevian-pages-links',
-    closeBundle(){const html=readFileSync(root+'pages-dist/index.html','utf8');for(const page of ['product','how-it-works','customer-portal','faq']){mkdirSync(root+'pages-dist/'+page,{recursive:true});writeFileSync(root+'pages-dist/'+page+'/index.html',html.replace('<title>Quevian — Bring clarity to your service desk</title>','<title>'+page.replaceAll('-',' ')+' | Quevian</title>'))}},
+    closeBundle(){const html=readFileSync(root+'pages-dist/index.html','utf8');for(const page of ['product','how-it-works','customer-portal','faq','pricing']){mkdirSync(root+'pages-dist/'+page,{recursive:true});writeFileSync(root+'pages-dist/'+page+'/index.html',html.replace('<title>Quevian — Bring clarity to your service desk</title>','<title>'+page.replaceAll('-',' ')+' | Quevian</title>'))}},
     enforce:'pre',
     transform(code,id){
-      if(id.endsWith('/components/marketing/landing.tsx')){
-        return code.replace(/href="\/(product|how-it-works|customer-portal|faq)\/"/g,(_match,page)=>`href="${base}${page}/"`).replace(/href="(\/(?:login|signup)[^"]*)"/g,(_match,path)=>`href="${appOrigin}${path}"`);
+      if(id.endsWith('/components/marketing/landing.tsx') || id.endsWith('/components/marketing/pricing.tsx')){
+        return code.replace(/href="\/(product|how-it-works|customer-portal|faq|pricing)\/"/g,(_match,page)=>`href="${base}${page}/"`).replace(/href="(\/(?:login|signup)[^"]*)"/g,(_match,path)=>`href="${appOrigin}${path}"`);
       }
       if(id.endsWith('/components/marketing/product-demo-media.ts')){
         return code.replaceAll('/media/',`${base}media/`);

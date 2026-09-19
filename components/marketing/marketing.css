@@ -28,3 +28,74 @@
 .qv-product-video video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:#f7f7f7;cursor:pointer}
 .qv-product-video video:focus-visible{outline:2px solid #525252;outline-offset:-5px;border-radius:15px}
 @media(max-width:600px){.qv-hero>.qv-product-video{border-radius:12px;box-shadow:0 0 28px 7px rgb(110 110 110 / 16%),0 0 50px 10px rgb(110 110 110 / 9%),0 16px 30px -14px rgb(0 0 0 / 22%)}}
+
+/* Pricing: one workspace plan, with an explicit team estimate. */
+.qv-pricing{--qv-price-muted:#626262;max-width:1160px;margin:auto;padding:0 40px 96px;color:#151515}
+.qv-pricing .qv-eyebrow{color:#656565;font-size:.875rem;letter-spacing:1.35px}
+.qv-pricing-intro{text-align:center;padding:74px 0 42px}
+.qv-pricing-intro h1{font-size:clamp(2.75rem,5.4vw,4.5rem);line-height:1.08;letter-spacing:-.055em;margin:20px 0 22px}
+.qv-pricing-intro>p:not(.qv-eyebrow){font-size:1.125rem;color:var(--qv-price-muted);line-height:1.65}
+.qv-pricing .qv-billing-toggle{display:inline-flex;gap:4px;padding:5px;margin-top:30px;background:#f2f2f2;border:1px solid #e9e9e9;border-radius:10px}
+.qv-billing-toggle label{display:flex;gap:9px;align-items:center;padding:9px 14px;border-radius:7px;font-size:.875rem;cursor:pointer;border:1px solid transparent}
+.qv-billing-toggle label.is-selected{background:#fff;border-color:#e3e3e3;box-shadow:0 1px 3px #00000008}
+.qv-billing-toggle label>span{font-size:.875rem;color:#5b5b5b}
+.qv-billing-toggle [data-slot=radio-group-item]{border-color:#a3a3a3;box-shadow:none;color:#111}
+.qv-billing-toggle [data-slot=radio-group-item][data-state=checked]{border-color:#111}
+.qv-billing-toggle [data-slot=radio-group-indicator] svg{fill:#111}
+.qv-price-layout{display:grid;grid-template-columns:1.12fr 1fr;gap:22px;align-items:stretch}
+.qv-plan-card,.qv-cost-card{border:1px solid #dedede;border-radius:15px;padding:36px}
+.qv-plan-card{background:#fff}
+.qv-plan-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.qv-plan-heading h2{font-size:1.4rem;letter-spacing:-.04em}
+.qv-plan-heading>span{font-size:.875rem;padding:4px 9px;border:1px solid #e4e4e4;border-radius:5px;color:#656565}
+.qv-pricing .qv-plan-description{color:var(--qv-price-muted);margin-top:14px;max-width:360px;line-height:1.65}
+.qv-plan-price{display:flex;gap:17px;align-items:center;margin-top:22px}
+.qv-plan-price>span{font-size:4.5rem;letter-spacing:-.065em;line-height:1.2;font-variant-numeric:tabular-nums}
+.qv-plan-price p{font-size:.875rem;line-height:1.55;color:var(--qv-price-muted)}
+.qv-pricing .qv-plan-billing{font-size:.875rem;color:var(--qv-price-muted);min-height:44px;margin:9px 0 20px}
+.qv-pricing .qv-pricing-start{width:100%;font-size:1rem}
+.qv-pricing .qv-price-caption{text-align:center;font-size:.875rem;margin-top:12px;color:var(--qv-price-muted)}
+.qv-plan-inclusions{border-top:1px solid #e6e6e6;margin-top:28px;padding-top:23px}
+.qv-plan-inclusions>p{font-size:.875rem}
+.qv-plan-inclusions ul{padding:0;list-style:none;display:grid;gap:11px;margin:15px 0 0}
+.qv-plan-inclusions li{display:flex;gap:10px;align-items:center;font-size:1rem;color:#4e4e4e}
+.qv-plan-inclusions svg{flex-shrink:0;color:#222}
+.qv-cost-card{background:#f5f5f5;border-color:#ebebeb;display:flex;flex-direction:column}
+.qv-cost-card h2{font-size:1.65rem;line-height:1.2;letter-spacing:-.04em;margin:17px 0 12px}
+.qv-cost-card>p:not(.qv-eyebrow){color:var(--qv-price-muted)}
+.qv-seat-label{display:block;font-size:.875rem;margin:32px 0 10px}
+.qv-seat-control{display:flex;align-items:center;gap:10px;max-width:240px}
+.qv-seat-control button{display:flex;align-items:center;justify-content:center;flex-shrink:0;width:44px;height:44px;border:1px solid #d9d9d9;background:#fff;border-radius:7px;transition:background .15s}
+.qv-seat-control button:hover{background:#e7e7e7}
+.qv-seat-control button:disabled{opacity:.4;cursor:not-allowed}
+.qv-seat-control input{height:44px;text-align:center;background:#fff;border:1px solid #d9d9d9;border-radius:7px;font-size:1rem;box-shadow:none}
+.qv-pricing .qv-seat-help{font-size:.875rem;line-height:1.5;margin-top:12px;min-height:42px}
+.qv-pricing .qv-seat-help.is-invalid{color:#9b2525}
+.qv-cost-result{border-top:1px solid #dcdcdc;padding-top:24px;margin-top:20px}
+.qv-cost-result>p{font-size:.875rem;color:var(--qv-price-muted)}
+.qv-cost-result>div{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px;margin:4px 0 9px}
+.qv-cost-result strong{font-size:3.75rem;line-height:1.2;letter-spacing:-.055em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.qv-cost-result>div>span{font-size:.875rem;color:#656565}
+.qv-pricing .qv-cost-saving{color:#222;margin-top:12px}
+.qv-pricing .qv-cost-note{font-size:.875rem;line-height:1.65;margin-top:auto;padding-top:25px}
+.qv-early-access-note{display:flex;align-items:baseline;gap:24px;border-bottom:1px solid #e7e7e7;padding:27px 0 31px}
+.qv-early-access-note>span{flex-shrink:0;font-size:.875rem}
+.qv-early-access-note>p{color:var(--qv-price-muted);font-size:.875rem;line-height:1.7}
+.qv-pricing-features{padding:83px 0 74px}
+.qv-pricing-section-title h2,.qv-pricing-faq h2{font-size:2.6rem;line-height:1.15;letter-spacing:-.045em;margin-top:16px}
+.qv-pricing-section-title>p:last-child{color:var(--qv-price-muted);margin-top:20px;font-size:1rem}
+.qv-pricing-feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:38px 40px;margin:42px 0 30px}
+.qv-pricing-feature-grid h3{font-size:1.125rem;letter-spacing:-.025em;margin:13px 0 9px}
+.qv-pricing-feature-grid p{color:var(--qv-price-muted);font-size:1rem;line-height:1.7}
+.qv-pricing .qv-text-link{font-size:1rem}
+.qv-pricing-faq{display:grid;grid-template-columns:.85fr 1.4fr;gap:70px;border-top:1px solid #e6e6e6;padding-top:65px}
+.qv-pricing-faq details{border-bottom:1px solid #e4e4e4;padding:19px 0}
+.qv-pricing-faq details:first-child{padding-top:0}
+.qv-pricing-faq summary{display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer;font-size:1rem;list-style:none}
+.qv-pricing-faq summary::-webkit-details-marker{display:none}
+.qv-pricing-faq summary svg{flex-shrink:0;transition:transform .2s}
+.qv-pricing-faq details[open] summary svg{transform:rotate(180deg)}
+.qv-pricing-faq details>p{font-size:1rem;line-height:1.75;color:var(--qv-price-muted);margin:14px 28px 0 0}
+@media(min-width:801px) and (max-width:960px){.qv-nav{gap:13px;font-size:13px}.qv-nav-wrap{padding:0 18px;gap:14px}.qv-nav-actions{gap:12px}.qv-nav-actions .qv-button.small{padding:8px 10px}.qv-nav-wrap>.qv-brand{width:132px}}
+@media(max-width:850px){.qv-pricing{padding-inline:25px}.qv-plan-card,.qv-cost-card{padding:26px}.qv-price-layout{gap:16px}.qv-pricing-feature-grid{gap:30px;grid-template-columns:repeat(2,minmax(0,1fr))}.qv-pricing-faq{gap:35px;grid-template-columns:1fr 1.5fr}.qv-pricing-section-title h2,.qv-pricing-faq h2{font-size:2.2rem}}
+@media(max-width:640px){.qv-pricing{padding:0 20px 65px}.qv-pricing-intro{padding:52px 0 30px}.qv-pricing-intro h1{font-size:2.8rem}.qv-pricing-intro>p:not(.qv-eyebrow){font-size:1rem}.qv-pricing .qv-eyebrow{font-size:.8125rem}.qv-price-layout{grid-template-columns:1fr}.qv-plan-card,.qv-cost-card{padding:26px}.qv-early-access-note{flex-direction:column;gap:8px}.qv-pricing-feature-grid{grid-template-columns:1fr;gap:28px;margin-top:32px}.qv-pricing-features{padding:54px 0}.qv-pricing-faq{grid-template-columns:1fr;padding-top:46px;gap:34px}.qv-billing-toggle label{padding:9px 10px;gap:7px}.qv-pricing-section-title h2,.qv-pricing-faq h2{font-size:2.1rem}.qv-plan-price>span{font-size:4rem}}
