@@ -18,16 +18,16 @@
 .qv-site .qv-button:hover{background:#e5e5e5;border-color:#e5e5e5;color:#111;border-radius:8px;transform:none;text-shadow:none}
 .qv-site .qv-button.secondary:hover{background:#ededed;border-color:#ededed;color:#111}
 
-/* Soft neutral halo around the home-page software demo. */
+/* A broad neutral halo makes the home-page demo stand out in either theme. */
 .qv-hero{background:#fff;padding-bottom:48px}
-.qv-hero>.qv-product{box-shadow:0 0 55px 12px rgb(0 0 0 / 13%),0 16px 36px -12px rgb(0 0 0 / 16%)}
-@media(max-width:600px){.qv-hero{padding-bottom:32px}.qv-hero>.qv-product{box-shadow:0 0 28px 5px rgb(0 0 0 / 12%),0 12px 24px -10px rgb(0 0 0 / 15%)}}
+.qv-hero>.qv-product{box-shadow:0 0 42px 16px rgb(var(--qv-demo-glow,100 100 100) / 32%),0 0 110px 40px rgb(var(--qv-demo-glow,100 100 100) / 20%),0 24px 50px -14px rgb(0 0 0 / 22%)}
+@media(max-width:600px){.qv-hero{padding-bottom:32px}.qv-hero>.qv-product{box-shadow:0 0 30px 10px rgb(var(--qv-demo-glow,100 100 100) / 32%),0 0 66px 22px rgb(var(--qv-demo-glow,100 100 100) / 20%),0 16px 30px -12px rgb(0 0 0 / 22%)}}
 
 /* A rounded, control-free video with a soft neutral halo on every edge. */
-.qv-hero>.qv-product-video{border:1px solid #d5d5d5;border-radius:16px;background:#f7f7f7;box-shadow:0 0 38px 12px rgb(110 110 110 / 15%),0 0 90px 26px rgb(110 110 110 / 10%),0 22px 44px -16px rgb(0 0 0 / 22%)}
+.qv-hero>.qv-product-video{border:1px solid #d5d5d5;border-radius:16px;background:#f7f7f7}
 .qv-product-video video{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain;background:#f7f7f7;cursor:pointer}
 .qv-product-video video:focus-visible{outline:2px solid #525252;outline-offset:-5px;border-radius:15px}
-@media(max-width:600px){.qv-hero>.qv-product-video{border-radius:12px;box-shadow:0 0 28px 7px rgb(110 110 110 / 16%),0 0 50px 10px rgb(110 110 110 / 9%),0 16px 30px -14px rgb(0 0 0 / 22%)}}
+@media(max-width:600px){.qv-hero>.qv-product-video{border-radius:12px}}
 
 /* Pricing: one workspace plan, with an explicit team estimate. */
 .qv-pricing{--qv-price-muted:#626262;max-width:1160px;margin:auto;padding:0 40px 96px;color:#151515}
