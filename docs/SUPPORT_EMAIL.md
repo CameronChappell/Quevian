@@ -2,6 +2,14 @@
 
 Implemented: incoming Resend email webhooks, per-company/board inboxes, token-address reply matching, explicit outbound public replies, provider idempotency, signed delivery events, visible retry/bounce/delivery states. Existing portal-only replies remain available. Internal notes and files are never included in outbound emails.
 
+## Connection status — 2026-09-21
+
+The production sender and API key are present. `QUEVIAN_INBOUND_DOMAIN` and `RESEND_WEBHOOK_SECRET` are still absent. Resend account access is required to inspect the receiving domain, create or reuse the correct webhook, and save its signing secret in the Site runtime. The current sender is shared with account email; do not change account-mail configuration as part of receiving setup.
+
+The settings page now reports support sending as ready to test only when the sender, provider key, valid receiving domain, and signing secret are present. Receiving readiness also requires the provider key because the webhook handler fetches the original email. Inbox creation is rejected by the server until receiving setup is complete. Configuration readiness does not establish provider permissions, DNS verification, or live delivery.
+
+Use an existing Resend-managed receiving domain for initial acceptance when available. Branded inbound DNS can follow after inspecting the provider's exact records. Do not guess the account's assigned domain or publish a fabricated signing secret.
+
 ## Required operator setup
 
 Keep the existing RESEND_API_KEY and QUEVIAN_EMAIL_FROM. The API key must have permission to retrieve received emails as well as send messages. Receiving is not enabled by verifying a sending domain alone.

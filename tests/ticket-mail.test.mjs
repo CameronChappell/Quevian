@@ -45,6 +45,42 @@ test('delivery events arriving before provider ID is persisted are reconciled',a
 test('other tenants cannot inspect email recipients or retry messages',async()=>{const x=await setup();const t=await makeTicket(x),requestId=crypto.randomUUID();await x.a.emailReply(x.org,t.id,{body:'Update',requestId});await assert.rejects(x.b.mailHistory(x.org,t.id),status(403));await assert.rejects(x.b.dispatchMail(x.org,requestId),status(403))});
 test('missing contact email fails before posting a public message',async()=>{const x=await setup();const t=await x.a.createTicket(x.org,{title:'Help',companyId:x.company,boardId:x.board});await assert.rejects(x.a.emailReply(x.org,t.id,{body:'Update',requestId:crypto.randomUUID()}),status(400));assert.equal((await x.a.messages(x.org,t.id)).messages.length,0)});
 test('missing receiving configuration fails safely',async()=>{const x=await setup();state.env.RESEND_WEBHOOK_SECRET='';const t=await makeTicket(x);await assert.rejects(x.a.emailReply(x.org,t.id,{body:'Update',requestId:crypto.randomUUID()}),status(503));assert.equal(state.sent.length,0)});
+test('partial or invalid receiving setup cannot report ready or create an unusable inbox',async()=>{
+ for(const [key,value] of [['RESEND_API_KEY',''],['RESEND_API_KEY','   '],['RESEND_WEBHOOK_SECRET',''],['QUEVIAN_INBOUND_DOMAIN',''],['QUEVIAN_INBOUND_DOMAIN','https://inbound.example.com']]){
+  const x=await setup();try{
+   state.env[key]=value;
+   const settings=await x.a.mailSettings(x.org);
+   assert.equal(settings.sendingConfigured,false,key);
+   assert.equal(settings.receivingConfigured,false,key);
+   await assert.rejects(x.a.mailRouteSave(x.org,{companyId:x.company,boardId:x.board}),status(503));
+   assert.equal((await x.a.rows('SELECT * FROM mail_routes')).length,1);
+   assert.equal(state.sent.length,0);
+  }finally{x.db.close()}
+ }
+});
+test('missing or malformed sender blocks replies without blocking configured receiving',async()=>{
+ for(const sender of ['', 'not-an-email']){
+  const x=await setup();try{
+   state.env.QUEVIAN_EMAIL_FROM=sender;
+   const settings=await x.a.mailSettings(x.org);
+   assert.equal(settings.receivingConfigured,true);
+   assert.equal(settings.sendingConfigured,false);
+   const ticket=await makeTicket(x);
+   await assert.rejects(x.a.emailReply(x.org,ticket.id,{body:'Update',requestId:crypto.randomUUID()}),status(503));
+   assert.equal((await x.a.messages(x.org,ticket.id)).messages.length,0);
+   assert.equal(state.sent.length,0);
+  }finally{x.db.close()}
+ }
+});
+test('complete configuration reports readiness with a normalized receiving domain',async()=>{
+ const x=await setup();try{
+  state.env.QUEVIAN_INBOUND_DOMAIN=' Inbound.Example.Com ';
+  const settings=await x.a.mailSettings(x.org);
+  assert.equal(settings.sendingConfigured,true);
+  assert.equal(settings.receivingConfigured,true);
+  assert.equal(settings.domain,'inbound.example.com');
+ }finally{x.db.close()}
+});
 test('invalid signatures and modified payloads are rejected',async()=>{await setup();await assert.rejects(verifiedWebhook(signed('email.received',providerId,{sig:'v1,AAAA'})),status(401));await assert.rejects(verifiedWebhook(signed('email.received',providerId,{body:'{}'})),status(401))});
 test('expired and future signed timestamps are rejected',async()=>{await setup();for(const delta of [-600,600])await assert.rejects(verifiedWebhook(signed('email.received',providerId,{ts:String(Math.floor(Date.now()/1000)+delta)})),status(401))});
 test('uncertain deliveries are not retried beyond provider idempotency lifetime',async()=>{const x=await setup();const t=await makeTicket(x),requestId=crypto.randomUUID();state.fail=true;await x.a.emailReply(x.org,t.id,{body:'Update',requestId});await x.a.stmt('UPDATE mail_outbox SET created=? WHERE id=?',new Date(Date.now()-25*3600000).toISOString(),requestId).run();state.fail=false;assert.equal((await x.a.dispatchMail(x.org,requestId)).status,'review');assert.equal(state.sent.length,1)});
