@@ -15,10 +15,10 @@ const features = [
 ];
 
 const questions = [
-  ['Can I start using Quevian now?', 'Yes. Create an account to join early access. Early access is free, and no payment details are collected. The prices above are planned launch rates; you will need to agree to a paid subscription before any billing begins.'],
-  ['Who counts as a paid seat?', 'The planned price applies to each staff member with workspace access, including administrators and technicians. Customers who only use the customer portal do not count as paid seats.'],
-  ['What is the difference between monthly and annual pricing?', 'The planned monthly rate is $19 per staff member. Annual pricing is $180 per staff member, paid upfront for the year—equivalent to $15 per month. Both include the same workspace features.'],
-  ['Is there a minimum team size?', 'The planned Workspace plan starts with one staff member. The calculator shows estimates for teams of up to 500; it is a budgeting tool, not a purchase or a reservation.'],
+  ['How do I get started?', 'Create an account, then create your organization or accept an invitation to an existing workspace. From there, you can set up your service boards and invite your team.'],
+  ['Who counts as a paid seat?', 'The price applies to each staff member with workspace access, including administrators and technicians. Customers who only use the customer portal do not count as paid seats.'],
+  ['What is the difference between monthly and annual pricing?', 'The monthly rate is $19 per staff member. Annual pricing is $180 per staff member, paid upfront for the year—equivalent to $15 per month. Both include the same workspace features.'],
+  ['Is there a minimum team size?', 'The Workspace plan starts with one staff member. The calculator shows estimates for teams of up to 500; it is a budgeting tool, not a purchase or a reservation.'],
   ['Can I bring my existing customer records?', 'Company and contact CSV imports are available in the workspace. Review the supported fields before uploading so your records arrive with the right details.'],
 ];
 
@@ -39,7 +39,7 @@ export function Pricing() {
 
   return <div className="qv-pricing">
     <section className="qv-pricing-intro" aria-labelledby="pricing-title">
-      <p className="qv-eyebrow">SIMPLE, PLANNED LAUNCH PRICING</p>
+      <p className="qv-eyebrow">SIMPLE, TRANSPARENT PRICING</p>
       <h1 id="pricing-title">A clear price.<br/>A calmer service day.</h1>
       <p>One plan for your whole service workflow.<br className="qv-desktop-break"/> Pay for your team, not the customers you help.</p>
       <RadioGroup className="qv-billing-toggle" value={billing} onValueChange={setBilling} aria-label="Billing frequency">
@@ -54,8 +54,7 @@ export function Pricing() {
         <p className="qv-plan-description">The everyday workspace for IT service providers and support teams.</p>
         <div className="qv-plan-price" aria-live="polite"><span>{dollars(rate)}</span><p>per staff member<br/>per month</p></div>
         <p className="qv-plan-billing">{annual ? '$180 per staff member, billed annually.' : 'Billed monthly. Choose annual to save $48 per seat each year.'}</p>
-        <a className="qv-button qv-pricing-start" href="/signup">Join free early access <ArrowRight size={18}/></a>
-        <p className="qv-price-caption">No payment details required.</p>
+        <a className="qv-button qv-pricing-start" href="/signup">Get started <ArrowRight size={18}/></a>
         <div className="qv-plan-inclusions"><p>Everything in your service workspace</p><ul>{['Tickets & customer portal', 'Dispatch, scheduling & time tracking', 'Projects, milestones & budgets', 'Customer records, assets & reports'].map(feature=><li key={feature}><Check size={17} aria-hidden="true"/>{feature}</li>)}</ul></div>
       </article>
 
@@ -76,11 +75,9 @@ export function Pricing() {
           <p>{validSeats ? (annual ? `${dollars(total*12)} billed annually for ${seats} ${seats===1?'seat':'seats'}.` : `${seats} ${seats===1?'seat':'seats'} × $19, billed monthly.`) : 'Your estimate will appear here.'}</p>
           {annual && validSeats && <p className="qv-cost-saving">Save {dollars(seats*48)} per year compared with monthly.</p>}
         </div>
-        <p className="qv-cost-note">USD, before applicable taxes.<br/>An estimate of planned launch pricing.</p>
+        <p className="qv-cost-note">USD, before applicable taxes.</p>
       </aside>
     </section>
-
-    <div className="qv-early-access-note"><span>Built for a clearer start.</span><p>Early access is free. Paid plans are not active yet, and billing will only begin after you agree to a subscription.</p></div>
 
     <section className="qv-pricing-features" aria-labelledby="included-title">
       <div className="qv-pricing-section-title"><p className="qv-eyebrow">ALL IN ONE WORKSPACE</p><h2 id="included-title">The whole workflow.<br/>Included from the start.</h2><p>The same tools, whether your team is one person or many.</p></div>
