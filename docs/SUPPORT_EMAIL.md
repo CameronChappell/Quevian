@@ -1,10 +1,10 @@
 # Support email activation and acceptance
 
-Implemented: incoming Resend email webhooks, per-company/board inboxes, token-address reply matching, explicit outbound public replies, provider idempotency, signed delivery events, visible retry/bounce/delivery states. Existing portal-only replies remain available. Internal notes and files are never included in outbound emails.
+Implemented: incoming Resend email webhooks, per-company/board inboxes, token-address reply matching, explicit outbound public replies, provider idempotency, signed delivery events, visible retry/bounce/delivery states. Existing portal-only replies remain available. Internal notes and internal files are never included in outbound emails; staff explicitly select customer-visible attachments.
 
 ## Connection status — 2026-09-21
 
-The Resend webhook and signing secret are configured, and the sending domain `quevian.com` is verified. `QUEVIAN_INBOUND_DOMAIN` is configured as `erkaephua.resend.app`. The owner created a company/board inbox and confirmed forwarding from the Google Workspace mailbox `support@quevian.com`; the first test reached Resend. Full live ticket-and-reply acceptance is still in progress.
+The Resend webhook and signing secret are configured, and the sending domain `quevian.com` is verified. `QUEVIAN_INBOUND_DOMAIN` is configured as `erkaephua.resend.app`. The owner created a company/board inbox and confirmed forwarding from the Google Workspace mailbox `support@quevian.com`; the first test reached Resend. The live round trip passed: initial email created ticket #1051, its outgoing reply was delivered, and the customer reply appeared on the same ticket. Duplicate replay created no additional ticket.
 
 The live test exposed an unsupported redirect option in the deployed Workers runtime and a send-only provider key. Email requests now use manual redirects and reject non-success responses. A Workers runtime regression test covers successful retrieval and rejection of redirects. The dedicated secret `RESEND_RECEIVING_API_KEY` retrieves incoming messages; Resend requires Full access for receiving. The existing `RESEND_API_KEY` remains restricted to sending and continues to serve account and ticket emails. The receiving key is stored only in the runtime secret store, never in GitHub or client code.
 
@@ -35,7 +35,7 @@ Keep the existing RESEND_API_KEY and QUEVIAN_EMAIL_FROM. Use QUEVIAN_SUPPORT_EMA
 
 Google's forwarding instructions: https://support.google.com/mail/answer/10957?hl=en
 
-## Live acceptance (not yet completed)
+## Acceptance checklist
 
 Use a dedicated test company and your own external mailbox. Do not test by sending messages to real customers.
 
@@ -49,8 +49,8 @@ Use a dedicated test company and your own external mailbox. Do not test by sendi
 
 ## Deliberate limits
 
-- Incoming attachments remain in Resend; ticket text explicitly discloses this. Automatic attachment import and outbound attachments are not implemented.
-- Delivery is attempted during the explicit Send reply action. Failures and abandoned attempts require the visible retry action; unattended background retries are separate work. The same payload/idempotency key is used for retries. After 23 hours, uncertain delivery requires operator review instead of risking a duplicate beyond Resend's idempotency window.
+- Incoming allowed attachments are imported into private file storage: at most 10 files, 5 MB per file, 20 MB total. Outgoing email includes only explicitly selected customer-visible files: at most 5 and 10 MB total. Metadata, host, redirects, size, company scope and merge races are checked. Failures/skips are visible. Automated tests cover imports and delivery payloads; a real provider attachment round trip still requires an owner-supplied test email. No malware scanning service is connected.
+- Delivery is attempted during the explicit Send reply action. The maintenance job retries saved pending, failed and abandoned attempts (at most eight attempts). Staff can also use the visible retry action. The same payload/idempotency key is used for retries. After 23 hours, uncertain delivery requires operator review instead of risking a duplicate beyond Resend's idempotency window.
 - Inboxes currently route to a fixed company and board. Email alone never creates membership or grants portal access.
 - Incoming sender addresses are email identities, not authenticated portal identities. No private ticket content is returned to an incoming sender. Only staff-triggered replies are sent to the original requester.
 - Unknown, paused, automatic, or ambiguous inbox recipients are ignored. Resend retains the original email for operator inspection.

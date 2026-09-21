@@ -1,6 +1,8 @@
+> Historical implementation notes. For current launch status, completed support email, subscriptions and background jobs, use [LAUNCH_READINESS.md](LAUNCH_READINESS.md). Earlier private-site and missing-email statements below describe an older release.
+
 # Provider setup and launch boundary
 
-QueuePilot remains a private Site. Adding an organization member or customer grant does not grant access to the Site itself. Do not change the Site audience without the owner requesting it.
+The existing Site is PUBLIC at the owner’s request. Application records still require authenticated, scoped access. Preserve the current Site audience.
 
 ## Optional AI
 

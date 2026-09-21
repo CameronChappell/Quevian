@@ -1,3 +1,5 @@
+> Historical implementation notes. For current launch status, completed support email, subscriptions and background jobs, use [LAUNCH_READINESS.md](LAUNCH_READINESS.md). Earlier private-site and missing-email statements below describe an older release.
+
 # QueuePilot release status
 
 This is a working private service-management application, not a completed public SaaS launch. The original brief is broader than the implemented release. Do not describe provider-dependent or remaining advanced features as complete.

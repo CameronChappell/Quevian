@@ -1,3 +1,5 @@
+> Historical implementation notes. For current launch status, completed support email, subscriptions and background jobs, use [LAUNCH_READINESS.md](LAUNCH_READINESS.md). Earlier private-site and missing-email statements below describe an older release.
+
 # Launch test report — September 8, 2026
 
 Result: **100 passed, 0 failed, 0 skipped**.

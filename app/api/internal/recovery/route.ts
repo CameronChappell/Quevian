@@ -1,0 +1,7 @@
+import {env} from 'cloudflare:workers';
+import {respond} from '@/lib/server/http';
+import {authorizeJob} from '@/lib/server/jobs';
+import {HttpError} from '@/lib/server/service';
+import type {Snapshot} from '@/lib/server/recovery';
+export const dynamic='force-dynamic';
+export async function GET(request:Request){return respond(async()=>{await authorizeJob(request);if(!env.BUCKET)throw new HttpError(503,'Storage unavailable.');const latest=await env.BUCKET.get('_backups/latest.json');if(!latest)throw new HttpError(404,'No complete backup.');const info=JSON.parse(await latest.text()),object=await env.BUCKET.get('_backups/'+info.id+'/manifest.json');if(!object)throw new HttpError(404,'Manifest unavailable.');const text=await object.text(),snapshot=JSON.parse(text) as Snapshot,params=new URL(request.url).searchParams,hash=params.get('file');if(!hash)return new Response(text,{headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});const file=snapshot.objects.find(x=>x.sha256===hash);if(!file)throw new HttpError(404,'File unavailable.');const stored=await env.BUCKET.get(file.backupKey);if(!stored)throw new HttpError(404,'File unavailable.');if(params.get('encoding')==='base64'){const bytes=new Uint8Array(await stored.arrayBuffer());let binary='';for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));return {sha256:file.sha256,size:bytes.length,content:btoa(binary)}}return new Response(stored.body,{headers:{'Content-Type':'application/octet-stream','Cache-Control':'no-store'}})})}

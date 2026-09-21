@@ -40,7 +40,15 @@ const worker = {
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    const response=await handler.fetch(request, env, ctx);
+    const secured=new Response(response.body,response);
+    secured.headers.set('X-Content-Type-Options','nosniff');
+    secured.headers.set('Referrer-Policy','strict-origin-when-cross-origin');
+    secured.headers.set('Permissions-Policy','camera=(), microphone=(), geolocation=()');
+    secured.headers.set('Content-Security-Policy',"object-src 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com https://billing.stripe.com");
+    if(url.protocol==='https:')secured.headers.set('Strict-Transport-Security','max-age=31536000');
+    if(url.pathname.startsWith('/api/')||['/app','/portal'].includes(url.pathname))secured.headers.set('Cache-Control','private, no-store');
+    return secured;
   },
 };
 
