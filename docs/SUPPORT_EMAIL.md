@@ -4,7 +4,9 @@ Implemented: incoming Resend email webhooks, per-company/board inboxes, token-ad
 
 ## Connection status — 2026-09-21
 
-The production sender and API key are present. `QUEVIAN_INBOUND_DOMAIN` and `RESEND_WEBHOOK_SECRET` are still absent. Resend account access is required to inspect the receiving domain, create or reuse the correct webhook, and save its signing secret in the Site runtime. The current sender is shared with account email; do not change account-mail configuration as part of receiving setup.
+The production API key is present, the Resend webhook is created, and its signing secret is stored securely in the Site runtime. The sending domain `quevian.com` is verified. `QUEVIAN_INBOUND_DOMAIN` is still absent: the receiving address and mailbox forwarding must be connected before live email acceptance.
+
+Ticket replies use `QUEVIAN_SUPPORT_EMAIL_FROM`, configured as `Quevian Support <support@quevian.com>`. Account emails retain `QUEVIAN_EMAIL_FROM` (`Quevian <accounts@quevian.com>`). If the dedicated support sender is unset, ticket replies use the existing account sender for backward compatibility. An invalid dedicated sender blocks sending rather than silently switching identities. Thread-specific Reply-To addresses continue to route customer replies to their existing tickets.
 
 The settings page now reports support sending as ready to test only when the sender, provider key, valid receiving domain, and signing secret are present. Receiving readiness also requires the provider key because the webhook handler fetches the original email. Inbox creation is rejected by the server until receiving setup is complete. Configuration readiness does not establish provider permissions, DNS verification, or live delivery.
 
@@ -12,7 +14,7 @@ Use an existing Resend-managed receiving domain for initial acceptance when avai
 
 ## Required operator setup
 
-Keep the existing RESEND_API_KEY and QUEVIAN_EMAIL_FROM. The API key must have permission to retrieve received emails as well as send messages. Receiving is not enabled by verifying a sending domain alone.
+Keep the existing RESEND_API_KEY and QUEVIAN_EMAIL_FROM. Use QUEVIAN_SUPPORT_EMAIL_FROM for the support reply identity. The API key must have permission to retrieve received emails as well as send messages. Receiving is not enabled by verifying a sending domain alone.
 
 1. In Resend, choose Receiving Emails → Inbound address. Use its assigned receiving domain, or configure a dedicated receiving subdomain such as inbound.quevian.com. If using a custom subdomain, add exactly the MX records Resend specifies. Do not replace the root domain's mailbox MX records.
 2. Add this webhook endpoint in Resend:

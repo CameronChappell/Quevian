@@ -19,7 +19,7 @@ class D1 {
 }
 
 const owner={id:'owner',name:'Owner',email:'owner@example.com'},other={id:'other',name:'Other',email:'other@example.com'};
-async function setup(){state.sent=[];state.fail=false;state.incoming={from:'Customer <person@example.com>',to:[],subject:'Need help',text:'My printer stopped',message_id:'<incoming@example.com>',headers:{},attachments:[]};Object.assign(state.env,{RESEND_API_KEY:'test-only',QUEVIAN_EMAIL_FROM:'Quevian <support@example.com>',QUEVIAN_INBOUND_DOMAIN:'inbound.example.com',RESEND_WEBHOOK_SECRET:'whsec_'+Buffer.from('test-signing-secret').toString('base64')});const db=new D1();db.migrate();state.env.DB=db;const a=new TicketMail(db,owner),b=new TicketMail(db,other),org=(await a.createOrganization({name:'Alpha'})).id,foreign=(await b.createOrganization({name:'Beta'})).id,company=(await a.directory(org,'companies',{name:'Customer'})).id,board=(await a.workspace(org)).boards[0].id,contact=(await a.directory(org,'contacts',{name:'Person',companyId:company,email:'person@example.com'})).id;const inbox=await a.mailRouteSave(org,{companyId:company,boardId:board});state.incoming.to=[inbox.address];return {db,a,b,org,foreign,company,board,contact,inbox}}
+async function setup(){state.sent=[];state.fail=false;state.incoming={from:'Customer <person@example.com>',to:[],subject:'Need help',text:'My printer stopped',message_id:'<incoming@example.com>',headers:{},attachments:[]};Object.assign(state.env,{RESEND_API_KEY:'test-only',QUEVIAN_SUPPORT_EMAIL_FROM:'',QUEVIAN_EMAIL_FROM:'Quevian <support@example.com>',QUEVIAN_INBOUND_DOMAIN:'inbound.example.com',RESEND_WEBHOOK_SECRET:'whsec_'+Buffer.from('test-signing-secret').toString('base64')});const db=new D1();db.migrate();state.env.DB=db;const a=new TicketMail(db,owner),b=new TicketMail(db,other),org=(await a.createOrganization({name:'Alpha'})).id,foreign=(await b.createOrganization({name:'Beta'})).id,company=(await a.directory(org,'companies',{name:'Customer'})).id,board=(await a.workspace(org)).boards[0].id,contact=(await a.directory(org,'contacts',{name:'Person',companyId:company,email:'person@example.com'})).id;const inbox=await a.mailRouteSave(org,{companyId:company,boardId:board});state.incoming.to=[inbox.address];return {db,a,b,org,foreign,company,board,contact,inbox}}
 const inboundId=()=>crypto.randomUUID();
 async function makeTicket(x){return x.a.createTicket(x.org,{title:'Help',companyId:x.company,boardId:x.board,contactId:x.contact})}
 function signed(type='email.received',eid=providerId,overrides={}){const body=JSON.stringify({type,created_at:new Date().toISOString(),data:{email_id:eid}}),id=overrides.id??'evt_'+crypto.randomUUID(),ts=overrides.ts??String(Math.floor(Date.now()/1000)),signature=createHmac('sha256',Buffer.from('test-signing-secret')).update(id+'.'+ts+'.'+body).digest('base64');return new Request('https://quevian.test/api/webhooks/resend',{method:'POST',headers:{'svix-id':id,'svix-timestamp':ts,'svix-signature':overrides.sig??'v1,'+signature},body:overrides.body??body})}
@@ -37,6 +37,28 @@ test('other organizations cannot configure or inspect the inbox',async()=>{const
 test('cross-organization board and company references fail',async()=>{const x=await setup();const company=(await x.b.directory(x.foreign,'companies',{name:'Other customer'})).id;await assert.rejects(x.a.mailRouteSave(x.org,{companyId:company,boardId:x.board}),status(400));const board=(await x.b.workspace(x.foreign)).boards[0].id;await assert.rejects(x.a.mailRouteSave(x.org,{companyId:x.company,boardId:board}),status(400))});
 test('sending stores one public reply and emails only its text to the ticket contact',async()=>{const x=await setup();const t=await makeTicket(x);await x.a.addNote(x.org,String(t.id),{body:'INTERNAL SECRET',version:t.version});await x.a.emailReply(x.org,t.id,{body:'Public update',requestId:crypto.randomUUID()});assert.equal(state.sent.length,1);assert.deepEqual(state.sent[0].payload.to,['person@example.com']);assert.equal(state.sent[0].payload.text,'Public update');assert.doesNotMatch(JSON.stringify(state.sent[0]),/INTERNAL SECRET/);assert.equal((await x.a.messages(x.org,t.id)).messages.length,1);assert.equal((await x.a.mailHistory(x.org,t.id)).deliveries[0].status,'accepted')});
 test('same request ID prevents duplicate portal messages and sends',async()=>{const x=await setup();const t=await makeTicket(x),p={body:'Update',requestId:crypto.randomUUID()};await x.a.emailReply(x.org,t.id,p);await x.a.emailReply(x.org,t.id,p);assert.equal(state.sent.length,1);assert.equal((await x.a.messages(x.org,t.id)).messages.length,1)});
+test('ticket replies use the dedicated support sender and retain the account sender',async()=>{
+ const x=await setup();try{
+  state.env.QUEVIAN_EMAIL_FROM='Quevian <accounts@example.com>';
+  state.env.QUEVIAN_SUPPORT_EMAIL_FROM=' Quevian Support <support@example.com> ';
+  const settings=await x.a.mailSettings(x.org);
+  assert.equal(settings.sender,'Quevian Support <support@example.com>');
+  const ticket=await makeTicket(x);
+  await x.a.emailReply(x.org,ticket.id,{body:'Support update',requestId:crypto.randomUUID()});
+  assert.equal(state.sent[0].payload.from,'Quevian Support <support@example.com>');
+  assert.match(state.sent[0].payload.reply_to,/@inbound\.example\.com$/);
+  assert.equal(state.env.QUEVIAN_EMAIL_FROM,'Quevian <accounts@example.com>');
+ }finally{x.db.close()}
+});
+test('a malformed dedicated support sender cannot silently use the account sender',async()=>{
+ const x=await setup();try{
+  state.env.QUEVIAN_SUPPORT_EMAIL_FROM='not-an-email';
+  assert.equal((await x.a.mailSettings(x.org)).sendingConfigured,false);
+  const ticket=await makeTicket(x);
+  await assert.rejects(x.a.emailReply(x.org,ticket.id,{body:'Update',requestId:crypto.randomUUID()}),status(503));
+  assert.equal(state.sent.length,0);
+ }finally{x.db.close()}
+});
 test('failed delivery can retry with the identical provider idempotency key',async()=>{const x=await setup();const t=await makeTicket(x),p={body:'Update',requestId:crypto.randomUUID()};state.fail=true;await x.a.emailReply(x.org,t.id,p);assert.equal((await x.a.mailHistory(x.org,t.id)).deliveries[0].status,'retry');state.fail=false;await x.a.dispatchMail(x.org,p.requestId);assert.equal(state.sent.length,2);assert.equal(state.sent[0].init.headers['Idempotency-Key'],state.sent[1].init.headers['Idempotency-Key']);assert.equal((await x.a.messages(x.org,t.id)).messages.length,1)});
 test('email receipt uses original Message-ID for client threading',async()=>{const x=await setup();const t=await x.a.receiveMail(providerId);await x.a.emailReply(x.org,t.ticketId,{body:'We can help',requestId:crypto.randomUUID()});assert.equal(state.sent[0].payload.headers['In-Reply-To'],'<incoming@example.com>')});
 test('delivery webhook advances accepted to delivered and ignores older delayed status',async()=>{const x=await setup();const t=await makeTicket(x);await x.a.emailReply(x.org,t.id,{body:'Update',requestId:crypto.randomUUID()});await handleMailWebhook(signed('email.delivered'));await handleMailWebhook(signed('email.delivery_delayed'));assert.equal((await x.a.mailHistory(x.org,t.id)).deliveries[0].status,'delivered')});

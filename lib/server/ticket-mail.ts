@@ -3,8 +3,9 @@ import {env} from 'cloudflare:workers';
 import {Completion} from './completion';
 import {HttpError} from './service';
 
-const runtime=()=>env as unknown as {RESEND_API_KEY?:string;QUEVIAN_EMAIL_FROM?:string;QUEVIAN_INBOUND_DOMAIN?:string;RESEND_WEBHOOK_SECRET?:string;DB:D1Database};
+const runtime=()=>env as unknown as {RESEND_API_KEY?:string;QUEVIAN_EMAIL_FROM?:string;QUEVIAN_SUPPORT_EMAIL_FROM?:string;QUEVIAN_INBOUND_DOMAIN?:string;RESEND_WEBHOOK_SECRET?:string;DB:D1Database};
 const now=()=>new Date().toISOString();
+const supportSender=()=>runtime().QUEVIAN_SUPPORT_EMAIL_FROM?.trim()||runtime().QUEVIAN_EMAIL_FROM?.trim()||'';
 const address=(v:string)=>{const match=v.trim().match(/^(?:[^<>]*<)?([^<>\s]+@[^<>\s]+)>?$/);return z.string().email().max(254).parse(match?.[1]??'').toLowerCase()};
 const domain=()=>{const d=runtime().QUEVIAN_INBOUND_DOMAIN?.trim().toLowerCase();if(!d||!/^([a-z0-9-]+\.)+[a-z]{2,}$/.test(d))throw new HttpError(503,'An incoming email domain needs to be configured.');return d};
 const randomAddress=()=>crypto.randomUUID().replaceAll('-','')+'@'+domain();
@@ -12,9 +13,9 @@ function mailConfiguration(){
  const settings=runtime();
  let receivingDomain='',senderValid=false;
  try{receivingDomain=domain()}catch{}
- try{senderValid=!!address(settings.QUEVIAN_EMAIL_FROM??'')}catch{}
+ try{senderValid=!!address(supportSender())}catch{}
  const receivingConfigured=!!(settings.RESEND_API_KEY?.trim()&&settings.RESEND_WEBHOOK_SECRET?.trim()&&receivingDomain);
- return {sendingConfigured:receivingConfigured&&senderValid,receivingConfigured,domain:receivingDomain};
+ return {sendingConfigured:receivingConfigured&&senderValid,receivingConfigured,domain:receivingDomain,sender:senderValid?supportSender():''};
 }
 async function provider(path:string,init:RequestInit={}){const key=runtime().RESEND_API_KEY;if(!key)throw new HttpError(503,'Email delivery is not configured.');const r=await fetch('https://api.resend.com'+path,{...init,redirect:'error',signal:AbortSignal.timeout(12000),headers:{Authorization:'Bearer '+key,'Content-Type':'application/json',...init.headers}});if(!r.ok)throw new HttpError(502,'The email provider could not complete this request.');return r.json();}
 type Thread={address:string;org_id:string;ticket_id:number;company_id:string;requester:string;message_id:string};
@@ -28,7 +29,7 @@ export class TicketMail extends Completion {
  async emailReply(org:string,id:number,payload:unknown){await this.context(org,'tickets:write');const p=z.object({body:z.string().trim().min(1).max(10000),requestId:z.string().uuid()}).strict().parse(payload);const previous=await this.one<Outbox>('SELECT * FROM mail_outbox WHERE id=?',p.requestId);if(previous){if(previous.org_id!==org||previous.ticket_id!==id)throw new HttpError(409,'This reply request is already in use.');if(JSON.parse(previous.payload).text!==p.body)throw new HttpError(409,'This request belongs to a different reply. Reload before continuing.');await this.dispatchMail(org,p.requestId);return {ok:true,...await this.mailHistory(org,id)}}
  if(!mailConfiguration().sendingConfigured)throw new HttpError(503,'Support email setup is incomplete. Use Post to portal until it is connected.');domain();const ticket=await this.ticket(org,id);let thread=await this.one<Thread>('SELECT * FROM mail_threads WHERE org_id=? AND ticket_id=?',org,id);if(thread&&thread.company_id!==ticket.companyId)throw new HttpError(409,'The ticket company changed. Its original email thread cannot be used.');
  let newThread=false;if(!thread){const contact=ticket.contactId?await this.one<{email:string}>('SELECT email FROM contacts WHERE org_id=? AND company_id=? AND id=?',org,ticket.companyId,ticket.contactId):null;if(!contact?.email)throw new HttpError(400,'Select a ticket contact with an email address first.');thread={address:randomAddress(),org_id:org,ticket_id:id,company_id:ticket.companyId,requester:address(contact.email),message_id:''};newThread=true;}
- const t=thread,at=now(),data={from:runtime().QUEVIAN_EMAIL_FROM,to:[t.requester],reply_to:t.address,subject:('Re: [Quevian #'+id+'] '+ticket.title).replace(/[\r\n]/g,' '),text:p.body,...(t.message_id?{headers:{'In-Reply-To':t.message_id,'References':t.message_id}}:{})};
+ const t=thread,at=now(),data={from:supportSender(),to:[t.requester],reply_to:t.address,subject:('Re: [Quevian #'+id+'] '+ticket.title).replace(/[\r\n]/g,' '),text:p.body,...(t.message_id?{headers:{'In-Reply-To':t.message_id,'References':t.message_id}}:{})};
  await this.reply(org,id,{body:p.body},undefined,{companyId:t.company_id,messageId:p.requestId,statements:marker=>[...(newThread?[this.stmt('INSERT INTO mail_threads(address,org_id,ticket_id,company_id,requester,message_id) SELECT ?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM audit_events WHERE id=?)',t.address,org,id,t.company_id,t.requester,t.message_id,marker)]:[]),this.stmt("INSERT INTO mail_outbox(id,org_id,ticket_id,company_id,recipient,payload,status,created,updated) SELECT ?,?,?,?,?,?,'pending',?,? WHERE EXISTS(SELECT 1 FROM audit_events WHERE id=?)",p.requestId,org,id,t.company_id,t.requester,JSON.stringify(data),at,at,marker)]});await this.dispatchMail(org,p.requestId);return {ok:true,...await this.mailHistory(org,id)};
  }
  async dispatchMail(org:string,id:string){await this.context(org,'tickets:write');const row=await this.one<Outbox>('SELECT * FROM mail_outbox WHERE org_id=? AND id=?',org,id);if(!row)throw new HttpError(404,'Delivery not found.');const ticket=await this.ticket(org,row.ticket_id);if(ticket.companyId!==row.company_id)throw new HttpError(409,'The ticket company changed. Delivery is blocked.');if(['accepted',...finalStates].includes(row.status))return {status:row.status};if(Date.now()-Date.parse(row.created)>23*3600000){await this.stmt("UPDATE mail_outbox SET status='review',error='Delivery is uncertain and the safe retry window has expired. Check Resend before sending a new reply.' WHERE org_id=? AND id=?",org,id).run();return {status:'review'}}
