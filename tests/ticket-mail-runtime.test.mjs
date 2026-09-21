@@ -20,7 +20,7 @@ test('support mail can retrieve messages in Workers and rejects provider redirec
  let redirect=false;
  const mf=new Miniflare({
   modules:true,compatibilityDate:'2026-05-01',script:bundle.outputFiles[0].text,
-  bindings:{RESEND_API_KEY:'runtime-test-only'},
+  bindings:{RESEND_API_KEY:'runtime-sending-only',RESEND_RECEIVING_API_KEY:'runtime-receiving-only'},
   outboundService:async request=>{
    requests.push({url:request.url,authorization:request.headers.get('authorization')});
    if(redirect)return new Response(null,{status:302,headers:{Location:'https://untrusted.example/redirect'}});
@@ -33,7 +33,7 @@ test('support mail can retrieve messages in Workers and rejects provider redirec
   assert.deepEqual(await accepted.json(),{ignored:'unknown-or-ambiguous-recipient'});
   assert.equal(requests.length,1);
   assert.equal(requests[0].url,'https://api.resend.com/emails/receiving/11111111-1111-4111-8111-111111111111');
-  assert.equal(requests[0].authorization,'Bearer runtime-test-only');
+  assert.equal(requests[0].authorization,'Bearer runtime-receiving-only');
   redirect=true;
   const rejected=await mf.dispatchFetch('https://worker.test/');
   assert.equal(rejected.status,502,await rejected.clone().text());

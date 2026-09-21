@@ -5,11 +5,11 @@ import {readFileSync,readdirSync} from 'node:fs';
 import {join} from 'node:path';
 import {createHmac} from 'node:crypto';
 import {build} from 'esbuild';
-const state={env:{},sent:[],incoming:{},fail:false};globalThis.__ticketMail=state;
+const state={env:{},sent:[],received:[],incoming:{},fail:false};globalThis.__ticketMail=state;
 const compiled=await build({entryPoints:['lib/server/ticket-mail.ts'],bundle:true,format:'esm',platform:'node',write:false,plugins:[{name:'runtime',setup(b){b.onResolve({filter:/^cloudflare:workers$/},()=>({path:'env',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:'export const env=globalThis.__ticketMail.env;',loader:'js'}))}}]});
 const {TicketMail,verifiedWebhook,handleMailWebhook}=await import('data:text/javascript;base64,'+Buffer.from(compiled.outputFiles[0].text).toString('base64'));
 const providerId='11111111-1111-4111-8111-111111111111';
-globalThis.fetch=async(url,init={})=>{if(String(url).includes('/receiving/'))return Response.json(state.incoming);state.sent.push({url,init,payload:JSON.parse(init.body)});if(state.fail)throw new Error('Timeout');return Response.json({id:providerId})};
+globalThis.fetch=async(url,init={})=>{if(String(url).includes('/receiving/')){state.received.push({url,init});return Response.json(state.incoming);}state.sent.push({url,init,payload:JSON.parse(init.body)});if(state.fail)throw new Error('Timeout');return Response.json({id:providerId})};
 class D1 {
  constructor(path=':memory:'){this.sql=new DatabaseSync(path);this.sql.exec('PRAGMA foreign_keys=ON');}
  prepare(sql){const db=this;return {args:[],bind(...args){this.args=args;return this},async all(){const stmt=db.sql.prepare(sql);const results=stmt.all(...this.args);return {results,success:true,meta:{changes:Number(db.sql.prepare('SELECT changes() n').get().n)}}},async first(){return db.sql.prepare(sql).get(...this.args)??null},async run(){const r=db.sql.prepare(sql).run(...this.args);return {results:[],success:true,meta:{changes:Number(r.changes)}}},_sql:sql};}
@@ -19,11 +19,33 @@ class D1 {
 }
 
 const owner={id:'owner',name:'Owner',email:'owner@example.com'},other={id:'other',name:'Other',email:'other@example.com'};
-async function setup(){state.sent=[];state.fail=false;state.incoming={from:'Customer <person@example.com>',to:[],subject:'Need help',text:'My printer stopped',message_id:'<incoming@example.com>',headers:{},attachments:[]};Object.assign(state.env,{RESEND_API_KEY:'test-only',QUEVIAN_SUPPORT_EMAIL_FROM:'',QUEVIAN_EMAIL_FROM:'Quevian <support@example.com>',QUEVIAN_INBOUND_DOMAIN:'inbound.example.com',RESEND_WEBHOOK_SECRET:'whsec_'+Buffer.from('test-signing-secret').toString('base64')});const db=new D1();db.migrate();state.env.DB=db;const a=new TicketMail(db,owner),b=new TicketMail(db,other),org=(await a.createOrganization({name:'Alpha'})).id,foreign=(await b.createOrganization({name:'Beta'})).id,company=(await a.directory(org,'companies',{name:'Customer'})).id,board=(await a.workspace(org)).boards[0].id,contact=(await a.directory(org,'contacts',{name:'Person',companyId:company,email:'person@example.com'})).id;const inbox=await a.mailRouteSave(org,{companyId:company,boardId:board});state.incoming.to=[inbox.address];return {db,a,b,org,foreign,company,board,contact,inbox}}
+async function setup(){state.sent=[];state.received=[];state.fail=false;state.incoming={from:'Customer <person@example.com>',to:[],subject:'Need help',text:'My printer stopped',message_id:'<incoming@example.com>',headers:{},attachments:[]};Object.assign(state.env,{RESEND_API_KEY:'test-only',RESEND_RECEIVING_API_KEY:'',QUEVIAN_SUPPORT_EMAIL_FROM:'',QUEVIAN_EMAIL_FROM:'Quevian <support@example.com>',QUEVIAN_INBOUND_DOMAIN:'inbound.example.com',RESEND_WEBHOOK_SECRET:'whsec_'+Buffer.from('test-signing-secret').toString('base64')});const db=new D1();db.migrate();state.env.DB=db;const a=new TicketMail(db,owner),b=new TicketMail(db,other),org=(await a.createOrganization({name:'Alpha'})).id,foreign=(await b.createOrganization({name:'Beta'})).id,company=(await a.directory(org,'companies',{name:'Customer'})).id,board=(await a.workspace(org)).boards[0].id,contact=(await a.directory(org,'contacts',{name:'Person',companyId:company,email:'person@example.com'})).id;const inbox=await a.mailRouteSave(org,{companyId:company,boardId:board});state.incoming.to=[inbox.address];return {db,a,b,org,foreign,company,board,contact,inbox}}
 const inboundId=()=>crypto.randomUUID();
 async function makeTicket(x){return x.a.createTicket(x.org,{title:'Help',companyId:x.company,boardId:x.board,contactId:x.contact})}
 function signed(type='email.received',eid=providerId,overrides={}){const body=JSON.stringify({type,created_at:new Date().toISOString(),data:{email_id:eid}}),id=overrides.id??'evt_'+crypto.randomUUID(),ts=overrides.ts??String(Math.floor(Date.now()/1000)),signature=createHmac('sha256',Buffer.from('test-signing-secret')).update(id+'.'+ts+'.'+body).digest('base64');return new Request('https://quevian.test/api/webhooks/resend',{method:'POST',headers:{'svix-id':id,'svix-timestamp':ts,'svix-signature':overrides.sig??'v1,'+signature},body:overrides.body??body})}
 const status=n=>e=>e.status===n;
+test('receiving uses its dedicated key while ticket sending keeps the original key',async()=>{
+ const x=await setup();try{
+  state.env.RESEND_RECEIVING_API_KEY='receiving-test-only';
+  const {ticketId}=await x.a.receiveMail(providerId);
+  assert.equal(state.received[0].init.headers.Authorization,'Bearer receiving-test-only');
+  await x.a.emailReply(x.org,ticketId,{body:'Test reply',requestId:crypto.randomUUID()});
+  assert.equal(state.sent[0].init.headers.Authorization,'Bearer test-only');
+ }finally{x.db.close()}
+});
+test('a receiving key alone cannot enable or send outbound ticket replies',async()=>{
+ const x=await setup();try{
+  state.env.RESEND_RECEIVING_API_KEY='receiving-test-only';
+  delete state.env.RESEND_API_KEY;
+  const settings=await x.a.mailSettings(x.org);
+  assert.equal(settings.receivingConfigured,true);
+  assert.equal(settings.sendingConfigured,false);
+  const {ticketId}=await x.a.receiveMail(providerId);
+  await assert.rejects(x.a.emailReply(x.org,ticketId,{body:'Test reply',requestId:crypto.randomUUID()}),status(503));
+  assert.equal(state.sent.length,0);
+  assert.equal((await x.a.messages(x.org,ticketId)).messages.length,0);
+ }finally{x.db.close()}
+});
 test('signed incoming email creates a ticket on the configured company and board',async()=>{const x=await setup();const r=await handleMailWebhook(signed());const t=await x.a.ticket(x.org,r.ticketId);assert.equal(t.companyId,x.company);assert.equal(t.boardId,x.board);assert.equal(t.contactId,x.contact);assert.equal(t.description,'My printer stopped');assert.equal((await x.b.listTickets(x.foreign,new URL('https://test/?view=all'))).total,0)});
 test('duplicate incoming emails create one ticket',async()=>{const x=await setup();await x.a.receiveMail(providerId);assert.equal((await x.a.receiveMail(providerId)).duplicate,true);assert.equal((await x.a.listTickets(x.org,new URL('https://test/?view=all'))).total,1)});
 test('reply address appends to the existing ticket without trusting subject ticket numbers',async()=>{const x=await setup();await x.a.receiveMail(providerId);const t=await x.a.one('SELECT * FROM mail_threads');state.incoming.to=[t.address];state.incoming.subject='Re: #999999';state.incoming.text='More information';await x.a.receiveMail(inboundId());const m=await x.a.messages(x.org,t.ticket_id);assert.equal(m.messages.length,1);assert.equal(m.messages[0].kind,'Customer');assert.equal(m.messages[0].body,'More information');assert.equal((await x.a.ticket(x.org,t.ticket_id)).responded,null)});
