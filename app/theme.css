@@ -1,0 +1,126 @@
+/* Theme changes only colors. Layout, type, media, and status meaning stay intact. */
+.qv-theme-toggle {
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  width:36px;height:36px;flex-shrink:0;padding:0;border:1px solid #111;
+  border-radius:9px;background:#111;color:#fff;cursor:pointer;
+}
+.qv-theme-toggle:hover {background:#303030;border-color:#303030}
+.qv-theme-toggle:focus-visible {outline:2px solid var(--ring);outline-offset:3px}
+.qv-theme-toggle.with-label {width:auto;padding:0 12px;font-size:14px}
+.qv-auth-header-actions,.portal-header-actions {display:flex;align-items:center;gap:16px}
+.welcome-appearance {display:flex;justify-content:flex-end;margin-bottom:24px}
+/* Leave room for the appearance control before the navigation gets crowded. */
+@media(min-width:801px) and (max-width:1100px) {
+  .qv-header .qv-nav {display:none;position:absolute;top:87px;left:0;right:0;background:#fff;border-bottom:1px solid var(--qv-line);padding:24px;box-shadow:0 12px 20px #28365209}
+  .qv-header .qv-nav.is-open {display:flex;flex-direction:column;gap:22px}
+  .qv-header .qv-mobile-menu {display:flex;padding:6px}
+}
+@media(max-width:540px) {
+  .qv-auth-header-actions {gap:10px}
+  .portal-header-actions {gap:10px}
+  .portal-header-actions>span {display:none}
+  .topbar .heading-actions {gap:6px}
+  .qp-global-search {padding-inline:8px;gap:8px}
+  .topbar .breadcrumb>span {display:none}
+  .qv-nav-actions {gap:14px}
+}
+
+@media screen {
+  :root.dark {
+    color-scheme:dark;
+    --background:#000;--foreground:#ededed;
+    --card:#101010;--card-foreground:#ededed;
+    --popover:#171717;--popover-foreground:#ededed;
+    --primary:#ededed;--primary-foreground:#111;
+    --secondary:#202020;--secondary-foreground:#ededed;
+    --muted:#1a1a1a;--muted-foreground:#aaa;
+    --accent:#252525;--accent-foreground:#f5f5f5;
+    --border:#303030;--input:#444;--ring:#b0b0b0;--destructive:#ff7e87;
+    --sidebar:#0a0a0a;--sidebar-foreground:#bdbdbd;
+    --sidebar-accent:#252525;--sidebar-accent-foreground:#fff;
+    --sidebar-border:#2b2b2b;--sidebar-primary:#eee;
+    --sidebar-primary-foreground:#111;--sidebar-ring:#aaa;
+    --brand-blue:#89b5ff;--brand-teal:#65d6c0;
+    --brand-purple:#bb9af7;--brand-orange:#ffb07a;
+    --chart-1:#89b5ff;--chart-2:#65d6c0;--chart-3:#bb9af7;
+    --chart-4:#ffb07a;--chart-5:#b0becf;
+  }
+  :root.dark .qv-theme-toggle {background:#111;border-color:#4b4b4b;color:#fff}
+  :root.dark .qv-theme-toggle:hover {background:#282828;border-color:#777}
+  :root.dark .topbar {border-top-color:#303030}
+  :root.dark .title-dot {color:var(--foreground)}
+  :root.dark .quevian-logo,:root.dark .qv-brand {background:transparent}
+  :root.dark .quevian-logo img,:root.dark .qv-brand img {filter:brightness(0) invert(1)}
+  :root.dark .welcome-brand {background:var(--card)}
+  :root.dark .avatar {background:#292929;color:#c8c8c8}
+  :root.dark .form-error,:root.dark .priority-critical,:root.dark .priority-critical>span {color:#ff9696}
+  :root.dark .priority-high>span {color:#e3bf74}
+  :root.dark .status-in-progress {background:#17283f;color:#9bc2ff}
+  :root.dark :is(.status-waiting-on-customer,.status-waiting-on-vendor) {background:#352619;color:#f6bb86}
+  :root.dark .status-resolved {background:#13342c;color:#7bddbd}
+  :root.dark .status-escalated {background:#2e2140;color:#d0acff}
+  :root.dark :is(.nav-item,[data-slot="sidebar-menu-button"],[data-slot="button"],[data-slot="tabs-trigger"],[data-slot="select-trigger"]):not(.qv-site *):not([data-variant="destructive"]):not([data-variant="default"]):not(:disabled):not([aria-disabled="true"]):hover {background:#282828;color:#f5f5f5}
+  :root.dark :is(.ticket-number,.subject,.text-action,.portal-footer a):not(:disabled):not([aria-disabled="true"]):hover {background:#282828;box-shadow:0 0 0 4px #282828;color:#f5f5f5}
+  :root.dark button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.workspace-nav-bubble:not(:disabled):not([aria-disabled="true"]):is(:hover,:focus-visible) {background:#282828;color:#fff}
+  :root.dark button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.workspace-nav-bubble[data-active="true"] {background:#242424;color:#fff;box-shadow:inset 3px 0 #aaa}
+  :root.dark button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.workspace-nav-bubble[data-active="true"]:is(:hover,:focus-visible) {background:#303030}
+  :root.dark :is([data-slot="button"][data-variant="default"],.quick-create-button) {background:#171717;border:1px solid #555;color:#fff}
+  :root.dark :is([data-slot="button"][data-variant="default"],.quick-create-button):not(:disabled):not([aria-disabled="true"]):hover {background:#303030;border-color:#777;color:#fff}
+
+  /* Public pages share the same neutral surfaces as the application. */
+  :root.dark .qv-site {--qv-ink:#ededed;--qv-muted:#aaa;--qv-line:#303030;--qv-blue:#ededed;background:#000;color:var(--qv-ink)}
+  :root.dark .qv-header {background:rgb(0 0 0 / 97%)}
+  :root.dark :is(.qv-site,.qv-hero,.qv-skip) {background:#000}
+  :root.dark .qv-site :is(a,button,summary):focus-visible {outline-color:#b0b0b0}
+  :root.dark :is(.qv-hero h1,.qv-hero h1>span) {color:#f5f5f5}
+  :root.dark :is(.qv-eyebrow,.qv-hero-note,.qv-product-bar,.qv-demo-search,.qv-product aside>small,.qv-demo-item,.qv-product aside button,.qv-demo-breadcrumb,.qv-demo-label,.qv-demo-toolbar,.qv-demo-head,.qv-demo-row>span:first-child,.qv-demo-foot,.qv-project-cards small,.qv-project-cards p,.qv-capabilities>span,.qv-capabilities svg,.qv-steps article>span,.qv-conversation small,.qv-conversation article p,.qv-conversation-foot,.qv-faq summary svg,.qv-faq details p,.qv-footer p,.qv-footer>small) {color:#aaa}
+  :root.dark :is(.qv-product,.qv-conversation,.qv-auth-ticket) {background:var(--card);border-color:var(--border)}
+  :root.dark :is(.qv-product-bar,.qv-product aside,.qv-demo-head,.qv-workflow,.qv-closing,.qv-auth-aside) {background:#101010;border-color:var(--border)}
+  :root.dark :is(.qv-demo-row,.qv-steps article,.qv-auth-options a) {border-color:var(--border)}
+  :root.dark :is(.qv-product-bar>span:last-child,.qv-demo-toolbar>span:first-child,.qv-auth-options strong,.qv-current-user strong) {color:#ededed}
+  :root.dark .qv-site .qv-button {background:#171717;border-color:#555;color:#fff;box-shadow:none}
+  :root.dark .qv-site .qv-button.secondary {background:#101010;border-color:#444;color:#ededed}
+  :root.dark .qv-site .qv-button:hover,:root.dark .qv-site .qv-button.secondary:hover {background:#303030;border-color:#777;color:#fff}
+  :root.dark :is(.qv-nav a,.qv-login-link,.qv-footer nav a,.qv-site .qv-text-link):hover {background:#252525;box-shadow:0 0 0 7px #252525;color:#fff}
+  :root.dark :is(.qv-product aside button.selected,.qv-product aside button:hover) {background:#282828;color:#fff}
+  :root.dark :is(.qv-avatar,.qv-tags span,.qv-state) {background:#282828;color:#c5c5c5}
+  :root.dark :is(.qv-state.in-progress,.qv-schedule article) {background:#17283f;color:#9bc2ff}
+  :root.dark .qv-state.waiting {background:#352619;color:#f6bb86}
+  :root.dark :is(.qv-state.resolved,.qv-avatar.customer) {background:#13342c;color:#7bddbd}
+  :root.dark .qv-high {color:#f6bb86}
+  :root.dark .qv-schedule article:nth-of-type(2) {background:#2e2140;color:#d0acff}
+  :root.dark :is(.qv-schedule small,.qv-schedule p) {color:#bfc7d7}
+  :root.dark .qv-progress {background:#303030}
+  :root.dark .qv-feature-icon {background:#202020;color:#ddd;border-color:#333}
+  :root.dark .qv-hero>.qv-product-video {background:#101010;border-color:#444}
+  :root.dark .qv-product-video video {background:#101010}
+  /* The recorded demo and other media retain their original pixels. */
+  :root.dark .qv-back {color:#aaa!important}
+  :root.dark :is(.qv-auth-options a,.qv-auth-options small,.qv-signin-box>small,.qv-current-user,.qv-auth-main>footer,.qv-auth-aside>p,.qv-auth-aside li,.qv-auth-ticket>div,.qv-auth-ticket>p,.qv-auth-ticket>small,.qv-auth-form small,.qv-password button,.qv-auth-divider,.qv-account-page main>p) {color:#aaa}
+  :root.dark .qv-auth-options a.active {background:#202020;color:#fff;border-color:#888;box-shadow:0 0 0 1px #888}
+  :root.dark :is(.qv-site .qv-switch-account,.qv-auth-aside h2>span,.qv-auth-aside li svg,.qv-auth-form label) {color:#ededed}
+  :root.dark .qv-auth-form input {background:#101010;border-color:#555;color:#ededed}
+  :root.dark .qv-auth-form input::placeholder {color:#999}
+  :root.dark .qv-auth-error {background:#321c1c;color:#ffb2b2!important;border-color:#633838}
+  :root.dark .qv-auth-notice {color:#aaa!important}
+  :root.dark .qv-auth-success {background:#13342c;color:#a3e7c6;border-color:#315e4e}
+  :root.dark :is(.qv-auth-divider:before,.qv-auth-divider:after) {background:#333}
+
+  /* Pricing inputs, selections, and estimates remain legible in either mode. */
+  :root.dark .qv-pricing {--qv-price-muted:#aaa;color:#ededed}
+  :root.dark :is(.qv-pricing .qv-eyebrow,.qv-billing-toggle label>span,.qv-plan-heading>span,.qv-cost-result>div>span) {color:#aaa}
+  :root.dark .qv-pricing .qv-billing-toggle {background:#111;border-color:#333}
+  :root.dark .qv-billing-toggle label.is-selected {background:#303030;border-color:#555;box-shadow:none}
+  :root.dark .qv-billing-toggle [data-slot=radio-group-item] {border-color:#aaa;color:#fff}
+  :root.dark .qv-billing-toggle [data-slot=radio-group-item][data-state=checked] {border-color:#eee}
+  :root.dark .qv-billing-toggle [data-slot=radio-group-indicator] svg {fill:#eee}
+  :root.dark :is(.qv-plan-card,.qv-cost-card,.qv-plan-heading>span,.qv-plan-inclusions,.qv-cost-result,.qv-pricing-faq,.qv-pricing-faq details) {border-color:#333}
+  :root.dark .qv-plan-card {background:#0c0c0c}
+  :root.dark .qv-cost-card {background:#141414}
+  :root.dark :is(.qv-plan-inclusions li,.qv-plan-inclusions svg,.qv-pricing .qv-cost-saving) {color:#d0d0d0}
+  :root.dark :is(.qv-seat-control button,.qv-seat-control input) {background:#171717;border-color:#555;color:#ededed}
+  :root.dark .qv-seat-control button:hover {background:#303030}
+  :root.dark .qv-pricing .qv-seat-help.is-invalid {color:#ffb2b2}
+  @media(max-width:1100px) { :root.dark .qv-header .qv-nav {background:#101010} }
+}
+@media print { .qv-theme-toggle {display:none!important} }
