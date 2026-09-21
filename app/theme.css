@@ -109,6 +109,7 @@
   :root.dark :is(.qv-schedule small,.qv-schedule p) {color:#bfc7d7}
   :root.dark .qv-progress {background:#303030}
   :root.dark .qv-feature-icon {background:#202020;color:#ddd;border-color:#333}
+  :root.dark .qv-hero {--qv-demo-glow:185 185 185}
   :root.dark .qv-hero>.qv-product-video {background:#101010;border-color:#444}
   :root.dark .qv-product-video video {background:#101010}
   /* The recorded demo and other media retain their original pixels. */
