@@ -129,7 +129,7 @@ body{font-family:Inter,Arial,Helvetica,sans-serif;font-size:14px}button{cursor:p
 .brand .quevian-logo img,.welcome-brand .quevian-logo img,.portal-header .quevian-logo img{position:absolute;width:185%;max-width:none;height:auto;left:50%;top:50%;transform:translate(-50%,-50%)}
 .qp-sidebar .brand{height:76px;padding:12px}.welcome-brand{background:#fff;padding:14px 18px;border:1px solid var(--border);border-radius:12px;margin-bottom:36px}.welcome-brand .quevian-logo{width:260px;max-width:65vw}
 .workspace,.profile,.sidebar-note{border-color:var(--sidebar-border)}.workspace strong,.profile strong,.sidebar-note strong{color:var(--foreground)}.workspace small,.profile small,.sidebar-note p,.nav-label,.theme-toggle{color:var(--muted-foreground)}.sidebar-note .eyebrow,.sidebar-note button{color:var(--brand-blue)}.workspace-icon{color:var(--primary);border-color:var(--border);background:var(--accent)}.org-picker [data-slot=select-trigger]{background:var(--card);border-color:var(--border);color:var(--foreground)}.profile .avatar{background:var(--accent);color:var(--accent-foreground)}.nav-count{background:var(--muted);color:var(--muted-foreground)}
-.nav-item[data-active=true]{box-shadow:inset 3px 0 var(--brand-blue);font-weight:600}.nav-item:hover{background:var(--sidebar-accent)}
+.nav-item[data-active=true]{box-shadow:none;font-weight:600}.nav-item:hover{background:var(--sidebar-accent)}
 .portal-header{background:var(--card);border-bottom:1px solid var(--border)}.portal-header span{color:var(--muted-foreground)}
 .metric:nth-child(4n+1),.report-metrics article:nth-child(4n+1){--metric-color:var(--brand-blue)}.metric:nth-child(4n+2),.report-metrics article:nth-child(4n+2){--metric-color:var(--brand-teal)}.metric:nth-child(4n+3),.report-metrics article:nth-child(4n+3){--metric-color:var(--brand-purple)}.metric:nth-child(4n+4),.report-metrics article:nth-child(4n+4){--metric-color:var(--brand-orange)}
 .metric,.report-metrics article{border-top:3px solid var(--metric-color)}.metric>span svg,.report-metrics article strong{color:var(--metric-color)}.metric-active:after{background:var(--metric-color)}
@@ -173,7 +173,7 @@ button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.wor
   background-color: #e8e8e8;
   color: #111;
   border-radius: 10px;
-  box-shadow: inset 3px 0 #555;
+  box-shadow:none;
 }
 button[data-slot="sidebar-menu-button"][data-sidebar="menu-button"].nav-item.workspace-nav-bubble[data-active="true"]:is(:hover, :focus-visible) {
   background-color: #d6d6d6;
