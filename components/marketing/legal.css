@@ -1,0 +1,15 @@
+.qv-policy-date{font-size:.82rem;color:var(--qv-muted);letter-spacing:.03em;margin-top:-16px!important}
+.qv-policy-summary{font-size:1.15rem;color:var(--qv-muted);max-width:65ch}
+.qv-policy-contents,.qv-policy-contact{border:1px solid var(--qv-line);border-radius:16px;padding:24px;margin:32px 0;background:var(--qv-paper,transparent)}
+.qv-policy-contents ol{columns:2;column-gap:32px;margin:12px 0 0;padding-left:24px}
+.qv-policy-contents li{break-inside:avoid;font-size:.92rem}
+.qv-policy-section{scroll-margin-top:110px}.qv-policy-section ul{list-style:disc;padding-left:24px;margin-bottom:24px}
+.qv-policy-contact h2{margin-top:0}.qv-policy-contact p:last-child{margin-bottom:0}
+.qv-policy-table{overflow-x:auto;margin:20px 0 28px}.qv-policy-table table{border-collapse:collapse;width:100%;font-size:.9rem;text-align:left}.qv-policy-table caption{text-align:left;color:var(--qv-muted);margin-bottom:10px}.qv-policy-table th,.qv-policy-table td{border:1px solid var(--qv-line);padding:14px;vertical-align:top}.qv-policy-table th{font-weight:600}.qv-policy-table td:first-child{width:30%}
+.qv-consent-form{margin:30px 0}.qv-consent-form fieldset{border:1px solid var(--qv-line);padding:24px;border-radius:16px;min-width:0}.qv-consent-form legend{padding:0 8px}.qv-consent-form p{font-size:.9rem;color:var(--qv-muted)}
+.qv-site .qv-consent-check{display:flex;align-items:flex-start;gap:12px;font-size:.9rem;line-height:1.65;margin:18px 0;font-weight:400}.qv-site .qv-consent-check input{appearance:auto;accent-color:var(--qv-blue);width:18px;height:18px;min-width:18px;margin-top:4px;cursor:pointer}.qv-consent-check a{text-decoration:underline;text-underline-offset:3px}
+.qv-site button:disabled{opacity:.55;cursor:not-allowed}.qv-consent-form :focus-visible,.qv-policy-contents :focus-visible{outline:2px solid var(--qv-blue);outline-offset:4px}
+.qv-auth-policy-links{display:flex;justify-content:center;gap:10px 18px;flex-wrap:wrap;margin-top:12px}.qv-auth-policy-links a{text-decoration:underline;text-underline-offset:3px}
+.qv-legal-actions{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:16px 0}.qv-policy-contents button{border:1px solid var(--qv-line);border-radius:8px;padding:8px 12px;cursor:pointer}.qv-policy-contents form{display:grid;gap:12px;max-width:480px}.qv-policy-contents input{display:block;width:100%;padding:10px;border:1px solid var(--qv-line);border-radius:8px;margin-top:6px;background:transparent;color:inherit}.qv-policy-contents summary{cursor:pointer;font-weight:500}
+@media(max-width:600px){.qv-policy-contents ol{columns:1}.qv-policy-contents,.qv-policy-contact,.qv-consent-form fieldset{padding:18px}.qv-policy-table th,.qv-policy-table td{padding:10px}.qv-footer nav{gap:14px 20px}}
+@media print{.qv-header,.qv-footer,.qv-policy-contents,.qv-consent-form{display:none}.qv-site{background:#fff!important;color:#000!important}.qv-service-page{max-width:none;padding:0}.qv-policy-section{break-inside:avoid}.qv-policy-section a{color:inherit!important}}

@@ -11,7 +11,7 @@ The current release completes the application work listed below. Paid launch rem
 - Background-job routes, durable leases, retries, health endpoint and operator-only service operations.
 - Complete database/file snapshots with checksums in existing private storage, plus a tested restore script that writes only to a new isolated database. Independent offsite archival and deletion are not installed.
 - Owner business-record export and verified deletion-request intake. Deletion requires operator review; requesting deletion does not erase data or cancel billing.
-- Public support, privacy/data and service-terms contact pages. Full commercial terms are prepared behind an approval flag. Removed the internal build-progress notice from the workspace.
+- Public terms, privacy, acceptable-use, cookies/storage and billing/cancellation pages; dated, versioned acceptance enforced after verified sign-in. Data-request/export and billing access remain available to people who decline updated terms. Business identity, retention, regional requirements and commercial review remain launch gates in LEGAL_REVIEW.md; the legal/billing approval flags remain off.
 - Dependency security updates, private response caching rules and basic security headers.
 
 ## Release evidence

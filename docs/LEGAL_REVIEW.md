@@ -1,18 +1,37 @@
-# Business decisions required before paid launch
+# Policy implementation and decisions before launch
 
-The public /privacy page describes implemented data handling. /terms currently provides the support contact and states that creating an account does not authorize a charge. Full prepared terms are in app/terms/page.tsx behind QUEVIAN_LEGAL_APPROVED=false. Do not enable the flag until this review is complete.
+Updated September 21, 2026. Policy pages reduce ambiguity; they do not prevent lawsuits or certify compliance. Get counsel licensed for the actual business and customer regions to review them before a paid launch.
 
-The owner must provide the legal seller name, business/contact address where required, jurisdiction and customer regions. Confirm whether business formation and tax registrations are complete; application code cannot establish those facts.
+## Implemented
 
-Prepared commercial terms for review:
+- Public /terms, /privacy, /acceptable-use, /cookies and /billing-policy with dates, navigation, readable tables and contact channels.
+- Terms cover authority, adult business use, content ownership and operational permission, misuse, AI review, availability, suspension, limited warranty/liability exclusions and preservation of mandatory rights. No compulsory arbitration, class-action waiver, invented court/venue, fixed liability cap or sweeping indemnity was inserted.
+- Privacy describes actual providers, customer/organization roles, email delivery, optional AI, browser drafts, exports and reviewed deletion. It explicitly discloses that automatic backup expiry is not configured. No fixed deletion deadline, data-region guarantee, zero-retention claim or certification is advertised.
+- Signup requires affirmative policy acknowledgment before requesting an email account. After verified sign-in, every interactive identity (including ChatGPT and existing users) confirms current terms, privacy acknowledgment and adult/authority status. Only that verified action creates the durable server record; unverified signup claims and editable auth metadata never grant acceptance.
+- D1 legal_acceptances stores the authenticated user ID, terms and privacy versions and server timestamp. Repeated acceptance cannot overwrite its first timestamp. No additional IP or date-of-birth collection.
+- Protected staff, portal and invitation pages redirect to /review-terms. Normal interactive API access requires the current terms version. Owner-only export, privacy-request and existing billing-portal routes remain available without accepting; they retain their existing authentication, tenant checks and CSRF protections. Scheduled jobs and existing machine integrations are unchanged.
+- Acceptance is separate from payment authorization and marketing consent. No advertising cookie banner was added because this application has no advertising trackers.
+- Policy versions live in lib/legal.ts. Preserve each published text in git; changes to terms or the incorporated AUP require a new TERMS_VERSION. Review whether privacy changes also require renewed acknowledgment or a separate consent. Never silently rewrite a version already accepted.
 
-- USD $19 per staff seat monthly or $180 per staff seat annually, paid upfront for the selected period, before applicable tax.
-- Automatic renewal until the owner cancels. Cancellation ends renewal at the end of the current paid period.
-- Owner-authorized seat changes may immediately invoice prorations; no reduction below active staff and pending invitations.
-- Billing errors and refund requests go to support@quevian.com. No blanket automatic refund is promised; non-waivable legal rights remain unaffected. The owner must approve or replace this refund policy.
-- No advertised 24/7 coverage, response SLA, regulatory certification, or suitability for regulated data. The owner must choose actual support hours/staffing before advertising them.
-- Customer content belongs to the customer; processing is authorized only to operate, support, secure and recover the service. Account access and deletion requests are verified.
+## Owner facts and decisions still required
 
-Review the proposed terms and privacy notice with appropriate counsel for the actual company and sales regions. Review vendor agreements and any needed data-processing agreement before accepting customers with those requirements. These drafts are not a certification of legal compliance.
+1. **Identify the operator:** legal entity or sole proprietor/trading name, formation/location jurisdiction, business/contact address where required, and regions/customers served. Current pages use the existing Quevian trade name and support mailbox without inventing a corporation, address, venue or governing law. This is an unresolved disclosure/contract gap; publication is not approval for paid launch.
+2. **Commercial terms:** approve prices, renewal notices, cancellation flow, refund/withdrawal rights, trial terms if any, support coverage and any SLA. Current billing text reflects implemented owner checkout/cancellation and promises no automatic discretionary refund. Counsel should assess liability limitations and whether a negotiated cap, indemnity or dispute clause is appropriate.
+3. **Privacy operations:** approve purposes and legal bases for each actual activity, applicable regional rights, controller/processor duties, privacy-request deadlines and verification/appeal procedures. Confirm support@quevian.com is actively monitored for legal, privacy, accessibility, abuse and security reports.
+4. **Providers and international transfers:** review executed vendor agreements, subprocessor roles, actual processing locations, retention and AI settings. Put a customer DPA, any required transfer mechanism and processor/subprocessor notification process in place before accepting customer data requiring them. Do not claim GDPR, CCPA, HIPAA, SOC 2 or other certification without evidence and appropriate review.
+5. **Retention:** choose active-record, inactive-account, auth, email-provider, support, policy-acceptance and backup retention, and approve an implementation that honors valid requests and legal holds. Current backup copies have no automatic expiry; disclosure alone does not establish a lawful retention program.
+6. **Operational readiness:** verify accessibility with representative users/devices, incident and breach-response procedures, insurance/business formation/tax obligations appropriate to the operator, genuine end-to-end billing/cancellation and a verified-account acceptance flow. Code tests do not establish legal compliance.
 
-Deletion requests are recorded for operator review; no automatic production data deletion or backup expiry is enabled. Choose active-record retention, inactive-account retention, provider mail retention and backup retention, and approve the corresponding deletion implementation separately. A requested second-provider backup archive with 30-day expiry was blocked by automatic approval review pending explicit approval of payload, destination and retention. It has not been created.
+Keep QUEVIAN_LEGAL_APPROVED=false and billing disabled until these decisions and applicable review are complete. Enabling a feature flag is not legal approval by itself.
+
+## Unapproved work remains unimplemented
+
+An independent second-provider archive of the full application database and files, including customer data, and a 30-day expiry/deletion policy remain unapproved. This change does not create the archive, copy any production payload or enable deletion. Workspace deletion requests still record a review request rather than erase production data.
+
+## Sources used for review
+
+- [FTC privacy and security guidance](https://www.ftc.gov/business-guidance/privacy-security): privacy and security claims must reflect actual practices.
+- [California Attorney General CCPA guidance](https://oag.ca.gov/privacy/ccpa), updated August 28, 2026: applicability and rights require assessment; the website does not assert that every business is covered.
+- [Supabase SSR guidance](https://supabase.com/docs/guides/auth/server-side/advanced-guide): verified server identity and private session handling. Policy authorization is stored in the application database, never editable user metadata.
+
+These are starting points for review, not an exhaustive jurisdictional analysis.

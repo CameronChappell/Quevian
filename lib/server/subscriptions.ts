@@ -1,3 +1,4 @@
+import {TERMS_VERSION} from '../legal';
 import {env} from 'cloudflare:workers';
 import {z} from 'zod';
 import {HttpError,Service} from './service';
@@ -39,7 +40,7 @@ export async function startCheckout(s:Service,org:string,payload:unknown){
   if(!customer){customer=(await stripe('/customers',{'email':s.user.email,'metadata[quevian_org]':org},'quevian-customer/'+org)).id;await s.stmt("INSERT INTO workspace_subscriptions(org_id,customer_id,status,updated) VALUES(?,?,'pending',?) ON CONFLICT(org_id) DO UPDATE SET customer_id=excluded.customer_id,updated=excluded.updated",org,customer,new Date().toISOString()).run()}
   const expires=Math.floor(Date.now()/1000)+1800;
   const session=await stripe('/checkout/sessions',{mode:'subscription',customer:customer!,client_reference_id:org,'line_items[0][price]':priceId,'line_items[0][quantity]':String(p.seats),'subscription_data[metadata][quevian_org]':org,'metadata[quevian_org]':org,'consent_collection[terms_of_service]':'required','billing_address_collection':'required','tax_id_collection[enabled]':'true','automatic_tax[enabled]':String(settings().STRIPE_AUTOMATIC_TAX==='true'),success_url:site()+'/app?org='+encodeURIComponent(org)+'&section=subscription&checkout=success',cancel_url:site()+'/app?org='+encodeURIComponent(org)+'&section=subscription',expires_at:String(expires)},'quevian-checkout/'+org+'/'+Math.floor(Date.now()/1800000)+'/'+p.interval+'/'+p.seats);
-  await s.db.batch([s.stmt('UPDATE workspace_subscriptions SET checkout_id=?,checkout_expires=?,seats=?,interval=?,price_id=?,updated=? WHERE org_id=?',session.id,session.expires_at,p.seats,p.interval,priceId,new Date().toISOString(),org),s.log(org,'subscription','Subscription checkout requested',null,{seats:p.seats,interval:p.interval,termsVersion:'2026-09-21'})]);
+  await s.db.batch([s.stmt('UPDATE workspace_subscriptions SET checkout_id=?,checkout_expires=?,seats=?,interval=?,price_id=?,updated=? WHERE org_id=?',session.id,session.expires_at,p.seats,p.interval,priceId,new Date().toISOString(),org),s.log(org,'subscription','Subscription checkout requested',null,{seats:p.seats,interval:p.interval,termsVersion:TERMS_VERSION})]);
   return {url:trustedUrl(session.url,'checkout.stripe.com')};
  });
 }

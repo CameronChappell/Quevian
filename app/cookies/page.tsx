@@ -1,0 +1,12 @@
+import {PolicyPage} from '@/components/marketing/policy-page';
+export const metadata={title:'Cookies & browser storage | Quevian'};
+export default function Page(){return <PolicyPage title="Cookies & browser storage" summary="The current application uses sign-in cookies, interface preferences, and local drafts. It does not include advertising trackers." sections={[
+ {id:'storage',title:'1. What is stored',body:<div className="qv-policy-table"><table><caption>Storage used by the current application</caption><thead><tr><th>Category</th><th>Purpose and duration</th></tr></thead><tbody>
+ <tr><td>Authentication cookies</td><td>Keep an authenticated session and support session refresh. They expire or are cleared through the sign-in provider’s session and sign-out behavior; refresh can extend a session. Email-account session cookies are restricted from application JavaScript.</td></tr>
+ <tr><td>Theme preference</td><td>Remembers your selected light or dark appearance on this browser until changed or site storage is cleared.</td></tr>
+ <tr><td>Selected organization</td><td>Remembers the last workspace you selected on this browser until changed or cleared.</td></tr>
+ <tr><td>Unsaved internal-note drafts</td><td>Stores draft text in this browser so it can survive a reload. Saving the note clears its draft. Signing out does not necessarily clear drafts; clear site storage on shared devices.</td></tr>
+ </tbody></table></div>},
+ {id:'choices',title:'2. Your controls',body:<><p>You can choose the theme using the appearance button. Your browser can block cookies or clear site data; blocking sign-in cookies may prevent login, and clearing site data removes local preferences and unsaved drafts. It does not delete server-side records or backups.</p><p>Use a trusted browser profile for work and avoid drafting confidential notes on a shared device. Sign out when finished, and clear Quevian’s site data if another person can use that browser profile.</p></>},
+ {id:'tracking',title:'3. Tracking and external providers',body:<p>No advertising or cross-site analytics scripts are included in the current application, so there is no advertising-cookie choice to make here. Authentication, hosting, and payment providers can use storage for their own services. Optional tracking must be reviewed and any required consent controls added before it is introduced. See the <a href="/privacy">Privacy policy</a> for provider roles and requests.</p>},
+ ]}/>}

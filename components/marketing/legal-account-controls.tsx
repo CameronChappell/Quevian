@@ -1,0 +1,10 @@
+'use client';
+import {useState} from 'react';
+export function LegalAccountControls({organizations}:{organizations:{id:string;name:string;role:string}[]}){
+ const [error,setError]=useState(''),[notice,setNotice]=useState(''),[busy,setBusy]=useState('');
+ async function send(org:string,action:string,payload:unknown){if(busy)return;setBusy(org);setError('');setNotice('');try{const r=await fetch('/api/workspace/'+encodeURIComponent(org)+'/'+action,{method:'POST',headers:{'Content-Type':'application/json','X-Quevian-Request':'1'},body:JSON.stringify(payload)});const d=await r.json() as {error?:string;url?:string};if(!r.ok)throw new Error(d.error??'Unable to complete this request.');if(d.url){window.location.assign(d.url);return}setNotice('Deletion request received for review. No records have been deleted and billing has not been canceled.')}catch(e){setError(e instanceof Error?e.message:'Please try again.')}finally{setBusy('')}}
+ return <details className="qv-policy-contents"><summary>Data and billing access without accepting</summary><p>You can contact <a href="mailto:support@quevian.com">support@quevian.com</a> about access, correction, deletion, or cancellation. Owners can also use these controls without accepting updated terms. A reviewed deletion request does not cancel billing.</p>
+  {error&&<p role="alert">{error}</p>}{notice&&<p role="status">{notice}</p>}
+  {organizations.filter(o=>o.role==='Owner').map(o=><section className="qv-policy-section" key={o.id}><h2>{o.name}</h2><div className="qv-legal-actions"><a href={'/api/workspace/'+encodeURIComponent(o.id)+'/privacy/export'}>Export business records</a><button type="button" disabled={!!busy} onClick={()=>send(o.id,'subscription/portal',{})}>Manage billing / cancel renewal</button></div><form onSubmit={e=>{e.preventDefault();const form=new FormData(e.currentTarget);void send(o.id,'privacy/deletion',{confirmName:form.get('confirmName')})}}><label>Type the exact workspace name to request deletion review<input name="confirmName" required autoComplete="off" maxLength={120}/></label><button type="submit" disabled={!!busy}>Request deletion review</button></form></section>)}
+ </details>
+}

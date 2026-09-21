@@ -1,0 +1,1 @@
+export function PolicyLinks(){return <><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/cookies">Cookies & storage</a><a href="/acceptable-use">Acceptable use</a><a href="/billing-policy">Billing & cancellation</a></>}

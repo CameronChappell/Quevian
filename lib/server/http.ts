@@ -5,10 +5,12 @@ import {HttpError} from './service';
 import {Completion} from './completion';
 import {mutationGuard} from './files';
 import {accountIdentity} from '../auth/server';
-export async function service(){
+import {hasAcceptedTerms} from './legal';
+export async function service({allowPolicyReview=false}:{allowPolicyReview?:boolean}={}){
   const user=await accountIdentity();
   if(!user)throw new HttpError(401,'Sign in to continue.');
   if(!env.DB)throw new HttpError(503,'Shared storage is not available yet. Please try again shortly.');
+  if(!allowPolicyReview&&!await hasAcceptedTerms(env.DB,user.id))throw new HttpError(428,'Review and accept the current service terms at /review-terms before continuing.');
   return new Completion(env.DB,user);
 }
 export async function body(request:Request,limit=32768){mutationGuard(request);if(!request.headers.get('content-type')?.includes('application/json'))throw new HttpError(415,'Expected JSON.');const reader=request.body?.getReader();if(!reader)throw new HttpError(400,'A request body is required.');const chunks:Uint8Array[]=[];let size=0;while(true){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>limit){await reader.cancel();throw new HttpError(413,'The submitted form is too large.');}chunks.push(value)}const all=new Uint8Array(size);let offset=0;for(const chunk of chunks){all.set(chunk,offset);offset+=chunk.length}try{return JSON.parse(new TextDecoder().decode(all))}catch{throw new HttpError(400,'Invalid JSON.');}}
