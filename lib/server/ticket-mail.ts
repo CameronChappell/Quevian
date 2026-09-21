@@ -17,7 +17,8 @@ function mailConfiguration(){
  const receivingConfigured=!!(settings.RESEND_API_KEY?.trim()&&settings.RESEND_WEBHOOK_SECRET?.trim()&&receivingDomain);
  return {sendingConfigured:receivingConfigured&&senderValid,receivingConfigured,domain:receivingDomain,sender:senderValid?supportSender():''};
 }
-async function provider(path:string,init:RequestInit={}){const key=runtime().RESEND_API_KEY;if(!key)throw new HttpError(503,'Email delivery is not configured.');const r=await fetch('https://api.resend.com'+path,{...init,redirect:'error',signal:AbortSignal.timeout(12000),headers:{Authorization:'Bearer '+key,'Content-Type':'application/json',...init.headers}});if(!r.ok)throw new HttpError(502,'The email provider could not complete this request.');return r.json();}
+// Workers supports manual redirects; rejecting non-2xx responses also prevents credentials from following a redirect.
+async function provider(path:string,init:RequestInit={}){const key=runtime().RESEND_API_KEY;if(!key)throw new HttpError(503,'Email delivery is not configured.');const r=await fetch('https://api.resend.com'+path,{...init,redirect:'manual',signal:AbortSignal.timeout(12000),headers:{Authorization:'Bearer '+key,'Content-Type':'application/json',...init.headers}});if(!r.ok)throw new HttpError(502,'The email provider could not complete this request.');return r.json();}
 type Thread={address:string;org_id:string;ticket_id:number;company_id:string;requester:string;message_id:string};
 type Outbox={id:string;org_id:string;ticket_id:number;company_id:string;status:string;created:string;updated:string;payload:string;provider_id:string|null};
 const finalStates=['delivered','bounced','complained','failed'];
