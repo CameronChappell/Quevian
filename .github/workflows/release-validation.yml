@@ -1,0 +1,66 @@
+name: Release validation
+on:
+  push:
+    branches: [main, security/2026-09-22-hardening]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+concurrency:
+  group: release-validation-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22.16.0'
+          cache: npm
+      - name: Record exact source provenance
+        run: |
+          mkdir -p "$RUNNER_TEMP/release-evidence"
+          git rev-parse HEAD | tee "$RUNNER_TEMP/release-evidence/commit.txt"
+          git status --porcelain
+          git archive --format=tar.gz HEAD > "$RUNNER_TEMP/release-evidence/source.tar.gz"
+      - run: npm ci
+      - name: TypeScript validation
+        id: types
+        continue-on-error: true
+        run: npx tsc --noEmit --pretty false 2>&1 | tee "$RUNNER_TEMP/release-evidence/types.log"
+      - name: Complete regression suite
+        id: tests
+        continue-on-error: true
+        run: npm test 2>&1 | tee "$RUNNER_TEMP/release-evidence/tests.log"
+      - name: Production build
+        id: build
+        continue-on-error: true
+        env:
+          NODE_ENV: production
+        run: npm run build 2>&1 | tee "$RUNNER_TEMP/release-evidence/build.log"
+      - name: Retain checkout and validation evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: release-evidence-${{ github.sha }}
+          path: ${{ runner.temp }}/release-evidence
+          retention-days: 3
+          if-no-files-found: error
+      - name: Require every release gate to pass
+        if: always()
+        env:
+          TYPES_RESULT: ${{ steps.types.outcome }}
+          TESTS_RESULT: ${{ steps.tests.outcome }}
+          BUILD_RESULT: ${{ steps.build.outcome }}
+        run: |
+          test "$TYPES_RESULT" = success
+          test "$TESTS_RESULT" = success
+          test "$BUILD_RESULT" = success

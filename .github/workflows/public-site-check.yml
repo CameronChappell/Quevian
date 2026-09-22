@@ -1,0 +1,42 @@
+name: Public website diagnostics
+on:
+  push:
+    branches: [main, security/2026-09-22-hardening]
+    paths: [.github/workflows/public-site-check.yml]
+  workflow_dispatch:
+permissions: {}
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Observe public HTTPS and anonymous response policy without credentials
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json, urllib.request, urllib.error, urllib.parse
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  return None
+          opener=urllib.request.build_opener(NoRedirect)
+          urls=['http://quevian.com/','https://quevian.com/','https://quevian.com/login','https://quevian.com/api/account','https://queuepilot.boomacooks.chatgpt.site/','https://queuepilot.boomacooks.chatgpt.site/api/account']
+          allowed=['content-type','strict-transport-security','content-security-policy','content-security-policy-report-only','x-content-type-options','x-frame-options','referrer-policy','cache-control','access-control-allow-origin']
+          for url in urls:
+              result={'url':url}
+              try:
+                  try: response=opener.open(urllib.request.Request(url,headers={'User-Agent':'Quevian-public-release-check/1.0'}),timeout=15)
+                  except urllib.error.HTTPError as error: response=error
+                  with response:
+                      result['status']=response.code
+                      result['headers']={name:response.headers.get(name) for name in allowed if response.headers.get(name)}
+                      target=response.headers.get('location')
+                      if target:
+                          parsed=urllib.parse.urlsplit(urllib.parse.urljoin(url,target))
+                          result['redirect']=urllib.parse.urlunsplit((parsed.scheme,parsed.netloc,parsed.path,'',''))
+                      cookies=response.headers.get_all('set-cookie',[])
+                      result['cookie_flags']=[{'secure':'; secure' in c.lower(), 'http_only':'; httponly' in c.lower(),'same_site_lax':'samesite=lax' in c.lower()} for c in cookies]
+              except Exception as error:
+                  result['error_type']=type(error).__name__
+                  result['reason_type']=type(getattr(error,'reason',None)).__name__
+              print(json.dumps(result))
+          PY

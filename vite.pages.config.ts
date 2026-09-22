@@ -4,7 +4,7 @@ import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('.',import.meta.url));
 const base=process.env.PAGES_BASE_PATH || '/Quevian/';
-const appOrigin='https://queuepilot.boomacooks.chatgpt.site';
+const appOrigin='https://quevian.com';
 export default defineConfig({
   root:root+'pages-preview',
   resolve:{alias:{'@':root}},
