@@ -6,7 +6,7 @@ The current release completes the application work listed below. Paid launch rem
 
 - Working Google Workspace → Resend → ticket → delivered staff reply → same-ticket customer reply. Live ticket #1051 verified, duplicate replay deduplicated.
 - Customer-visible incoming/outgoing email attachments with size/type/host checks, explicit outgoing selection, company boundaries, merge handling, visible import failures and saved retries. Local provider simulations and browser flow passed; real attachment acceptance needs an owner test email.
-- Subscription checkout, billing portal, signed webhooks, provider-state reconciliation, consent, seat counts, suspension and configurable paid access. Payments are disabled until the account/policy gates below pass. Simulated-provider tests passed; no real purchase was made.
+- Subscription checkout, billing portal, signed webhooks, provider-state reconciliation, consent, seat counts, suspension and mandatory paid workspace access. Payments are disabled until the account/policy gates below pass. Simulated-provider tests passed; no real purchase was made.
 - Existing sessions lose workspace access when a staff member is suspended. Historical records remain intact. Customer portal and organization boundaries have regression coverage.
 - Background-job routes, durable leases, retries, health endpoint and operator-only service operations.
 - Complete database/file snapshots with checksums in existing private storage, plus a tested restore script that writes only to a new isolated database. Independent offsite archival and deletion are not installed.
@@ -28,7 +28,7 @@ The current release completes the application work listed below. Paid launch rem
 
 ## Owner actions that remain
 
-1. **Stripe business account:** complete identity/payout setup and securely connect it. See BILLING_SETUP.md for exact product, prices, portal, webhooks and acceptance gates. Approve the transition for existing workspaces before enforcing payment. No keys should be sent in chat.
+1. **Stripe business account:** complete identity/payout setup and securely connect it. See BILLING_SETUP.md for exact product, prices, portal, webhooks and acceptance gates. The owner requested paid-only workspace access on 2026-09-22; payment setup is still required before new customers can activate a workspace. No keys should be sent in chat.
 2. **Business/policy details:** provide legal seller identity and approve pricing, refund/cancellation policy, support coverage and retention. Prepared terms and decisions are in LEGAL_REVIEW.md. Regulated-data commitments and vendor agreements require business review.
 3. **Domain DNS:** add the three exact records in DOMAIN_SETUP.md. app.quevian.com has been created but is awaiting owner-controlled DNS verification; the existing Sites URL remains working.
 4. **Independent backup approval:** approve or change this precise proposal: copy full application database and file backups, including customer data, into a private archive in the existing Supabase project; retain 30 days and permanently delete older backup copies. Automatic approval review rejected that transfer/retention operation without explicit approval. No workaround has been installed. Current R2 backups have no automatic expiry.

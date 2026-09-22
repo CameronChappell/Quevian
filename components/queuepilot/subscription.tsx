@@ -1,13 +1,31 @@
 'use client';
-import {useState} from 'react';
+import {useState,type ReactNode} from 'react';
+import {ThemeToggle} from '@/components/theme-provider';
+import type {Account} from '@/lib/domain';
 import {Button} from '@/components/ui/button';
 import {Checkbox} from '@/components/ui/checkbox';
 import {Input} from '@/components/ui/input';
 import {RadioGroup,RadioGroupItem} from '@/components/ui/radio-group';
 import {toast} from 'sonner';
-import {api,message,Loading,ErrorState} from './common';
+import {api,message,Loading,ErrorState,Picker} from './common';
 import {useRemote} from './module-common';
-type Status={configured:boolean;required:boolean;status:string;seats:number;usedSeats:number;interval:string;periodEnd:number|null;cancelAtPeriodEnd:boolean;hasSubscription:boolean};
+type Status={configured:boolean;required:boolean;accessAllowed:boolean;status:string;seats:number;usedSeats:number;interval:string;periodEnd:number|null;cancelAtPeriodEnd:boolean;hasSubscription:boolean};
+export function SubscriptionGate({org,account,selectOrg,children}:{org:string;account:Account;selectOrg:(id:string)=>void;children:ReactNode}){
+ const {data,error,reload}=useRemote<Status>('/api/workspace/'+org+'/subscription');
+ if(error)return <ErrorState error={error} retry={reload}/>;
+ if(!data)return <Loading/>;
+ if(data.accessAllowed)return <>{children}</>;
+ const organization=account.organizations.find(o=>o.id===org),owner=organization?.role==='Owner';
+ return <main style={{maxWidth:760,margin:'3rem auto',padding:'0 1.5rem'}}>
+  <div className="heading-actions"><a className="text-action" href="/">Quevian</a><ThemeToggle/><a className="text-action" href="/logout">Sign out</a></div>
+  <h1>Activate your workspace</h1>
+  <Picker label="Organization" value={org} options={account.organizations.map(o=>({value:o.id,label:o.name}))} onChange={selectOrg}/>
+  <p>{owner?'Purchase an active subscription to unlock tickets, customer records, and your team’s workspace.':'This workspace needs an active paid subscription. Ask your workspace owner to activate it.'}</p>
+  {owner&&<SubscriptionSettings org={org} owner/>}
+  <Button variant="outline" onClick={()=>reload()}>Check access</Button>
+  <p className="muted">Completed checkout? Access opens after payment confirmation. Your existing workspace data is kept.</p>
+ </main>;
+}
 export function SubscriptionSettings({org,owner}:{org:string;owner:boolean}){
  const url='/api/workspace/'+org+'/subscription',{data,error,reload}=useRemote<Status>(url),[interval,setInterval]=useState('monthly'),[seats,setSeats]=useState(''),[consent,setConsent]=useState(false),[busy,setBusy]=useState(false);
  const currentSubscription=!!data?.hasSubscription&&!['canceled','incomplete_expired'].includes(data.status);

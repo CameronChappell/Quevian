@@ -1,6 +1,6 @@
 # Quevian independent accounts: activation handoff
 
-Implementation is saved separately from activation. ChatGPT sign-in remains usable during migration. Do not enable independent accounts until sender setup and real-account acceptance checks succeed.
+As of 2026-09-22, the owner requested email/password-only sign-in. ChatGPT sign-in and header fallback are removed. Existing auth_links mappings are retained for already-linked verified accounts; matching email alone never grants ownership. Sender setup and real-account acceptance checks remain necessary.
 
 ## Confirmed configuration
 
@@ -39,15 +39,11 @@ Set strong password requirements and keep email confirmation enabled. Check Supa
 - Verify production cookie forwarding and refresh using controlled accounts before opening signup broadly. Then set QUEVIAN_EMAIL_AUTH_ENABLED=true and deploy. Enabling the flag should be restricted to the controlled test window until acceptance checks pass.
 - The app checks provider-verified identities with getUser; no decoded cookie or client-submitted user ID is trusted.
 - Auth cookies are HttpOnly, Secure and SameSite=Lax. Middleware refreshes sessions and passes cookies to both the request and response, with private/no-store cache headers.
-- Do not remove ChatGPT sign-in before existing owners link their accounts and validate access independently.
+- Only verified email accounts can access Quevian. Existing unlinked owners need support-assisted identity verification before any workspace migration; never auto-link by matching email.
 
 ## Existing account migration
 
-1. Sign in with the existing ChatGPT owner account.
-2. Open /auth/link and create/verify an email account with the same email.
-3. Return to /auth/link and explicitly confirm linking while signed into both accounts.
-4. The auth_links table maps the immutable Supabase subject to the existing internal user ID, preserving memberships, tickets, assignments and history. Email equality alone never grants access.
-5. Accounts that already created separate Supabase-owned workspaces need a deliberate merge; automatic merging is rejected.
+The self-service ChatGPT linking flow has been retired. `/auth/link` redirects to email login and `/api/auth/link` returns 404. Already-linked accounts retain their existing workspace identity after verified email sign-in. Do not delete legacy records or grant access to a newly registered account solely because its email matches.
 
 ## Acceptance checks requiring real provider configuration
 
