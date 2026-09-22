@@ -7,6 +7,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash
 concurrency:
   group: security-${{ github.ref }}
   cancel-in-progress: true
@@ -20,7 +23,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Install checksum-pinned Gitleaks
-        shell: bash
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
@@ -29,13 +31,12 @@ jobs:
           echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum --check
           tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
       - name: Scan all reachable Git history without logging secret values
-        shell: bash
         run: |
-          set -uo pipefail
+          set -euo pipefail
+          status=0
           "$RUNNER_TEMP/gitleaks" git . --log-opts='--all' --redact=100 --max-decode-depth=2 \
             --report-format=json --report-path="$RUNNER_TEMP/gitleaks.json" --no-banner \
-            >"$RUNNER_TEMP/gitleaks-private.log" 2>&1
-          status=$?
+            >"$RUNNER_TEMP/gitleaks-private.log" 2>&1 || status=$?
           export SCAN_STATUS="$status"
           python3 - <<'PY'
           import json, os, subprocess
@@ -49,10 +50,9 @@ jobs:
           print('Secret-scan findings:', len(findings))
           for item in findings:
               print(json.dumps({k:item.get(k) for k in ('RuleID','File','StartLine','Fingerprint')}))
-          raise SystemExit(status)
+          raise SystemExit(1 if findings else status)
           PY
       - name: Reject tracked runtime secrets and database payloads
-        shell: bash
         run: |
           python3 - <<'PY'
           import re, subprocess

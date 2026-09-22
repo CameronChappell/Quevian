@@ -1,12 +1,15 @@
 name: Release validation
 on:
   push:
-    branches: [security/2026-09-22-hardening]
+    branches: [main, security/2026-09-22-hardening]
   pull_request:
     branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
+defaults:
+  run:
+    shell: bash
 concurrency:
   group: release-validation-${{ github.ref }}
   cancel-in-progress: true
@@ -27,7 +30,6 @@ jobs:
           mkdir -p "$RUNNER_TEMP/release-evidence"
           git rev-parse HEAD | tee "$RUNNER_TEMP/release-evidence/commit.txt"
           git status --porcelain
-          git ls-files 'app/api/workspace/*/route.ts' 'lib/security*' 'tests/*' | sort
           git archive --format=tar.gz HEAD > "$RUNNER_TEMP/release-evidence/source.tar.gz"
       - run: npm ci
       - name: TypeScript validation
