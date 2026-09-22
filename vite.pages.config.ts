@@ -1,5 +1,6 @@
 import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
+import {clientSecurity} from './build/client-security.mjs';
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('.',import.meta.url));
@@ -10,7 +11,7 @@ export default defineConfig({
   resolve:{alias:{'@':root}},
   base,
   publicDir:root+'public',
-  plugins:[{
+  plugins:[clientSecurity(root),{
     name:'quevian-pages-links',
     closeBundle(){const html=readFileSync(root+'pages-dist/index.html','utf8');for(const page of ['product','how-it-works','customer-portal','faq','pricing']){mkdirSync(root+'pages-dist/'+page,{recursive:true});writeFileSync(root+'pages-dist/'+page+'/index.html',html.replace('<title>Quevian — Bring clarity to your service desk</title>','<title>'+page.replaceAll('-',' ')+' | Quevian</title>'))}},
     enforce:'pre',
