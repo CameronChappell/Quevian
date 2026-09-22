@@ -32,7 +32,14 @@ export async function fileRequest(s:Operations,request:Request,org:string,ticket
  try{
   // Repeat authorization after the external storage call. Never trust the
   // initial company, subscription, role or visibility for the final write.
-  await access(s,org,ticketId,company,true);
+  try { await access(s,org,ticketId,company,true); }
+  catch(error) {
+   // Initial access succeeded: revocation or reassignment during storage is a
+   // stale mutation, never authorization to finish the upload. The outer catch
+   // removes its new object before returning this conflict to the caller.
+   if(error instanceof HttpError && [403,404].includes(error.status))throw new HttpError(409,'Ticket or access changed. Reload before uploading.');
+   throw error;
+  }
   const at=new Date().toISOString(),marker=crypto.randomUUID(),guard='EXISTS(SELECT 1 FROM audit_events WHERE id=?)';
   const result=await s.db.batch([
    s.stmt(`UPDATE tickets SET updated=?,version=version+1 WHERE org_id=? AND id=? AND version=? AND company_id=? AND NOT EXISTS(SELECT 1 FROM ticket_relations WHERE org_id=? AND ticket_id=? AND kind='merge') ${company?'AND EXISTS(SELECT 1 FROM customer_grants WHERE org_id=? AND company_id=? AND email=?)':''}`,at,org,ticketId,ticket.version,ticket.company_id,org,ticketId,...(company?[org,company,s.user.email]:[])),
